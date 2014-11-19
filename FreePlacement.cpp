@@ -24,6 +24,8 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Assembly/Writer.h"
 #include "GraphClasses.h"
+#include <string>
+#include <stdio.h>
 
 using namespace llvm;
 
@@ -133,7 +135,9 @@ struct FreePlacement : public FunctionPass {
 						  WriteAsOperand(os1, AI, true, F.getParent());
 					}
 
-					pointsToGraph.addVertices(o1, "Stack", Edge::MAY);
+					char* stackLoc;
+					sprintf(stackLoc, "Stack%d", StackCounter++);
+					pointsToGraph.addVertices(o1, stackLoc, Edge::MAY);
 					errs() << "Alloca: " << o1 << "\n";
 				}
 				else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))
