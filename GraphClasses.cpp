@@ -103,7 +103,8 @@ void Graph::createDotFile(std::string fileName)
 		for (int j = 0; j < currentEdges.size(); j++)
 		{
 			Edge currentEdge = *(currentEdges[j]);
-			outFile << currentVertex.getFirstLabel() << " -> " << currentEdge.getTarget()->getFirstLabel() << "\n";
+			outFile << "\"" << currentVertex.getFirstLabel() << "\"" << " -> "
+					<< "\"" << currentEdge.getTarget()->getFirstLabel() << "\"" << "\n";
 
 		}
 	}

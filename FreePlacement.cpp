@@ -35,68 +35,23 @@ namespace {
 // Hello - The first implementation, without getAnalysisUsage.
 struct FreePlacement : public FunctionPass {
 	static char ID; // Pass identification, replacement for typeid
-	AliasAnalysis *AA;
 	Graph pointsToGraph;
 	FreePlacement() : FunctionPass(ID) {}
 
-	bool isFreeWritten(Value * operand, std::vector<CallInst*> FreeList)
-	{
-		for(std::vector<CallInst*>::iterator f = FreeList.begin(); f != FreeList.end(); ++f)
-		{
-			CallInst* AI = (*f);
-			if(AA->alias(AI->getArgOperand(0), operand) != AliasAnalysis::NoAlias)
-			{
-				errs() << "Inst Checked:" << *operand << "\n" << *(AI->getArgOperand(0))
-								<< "\t" << AA->alias(AI->getArgOperand(0), operand)
-								<<"\n";
-				return 1;
-			}
-		}
-		return 0;
-	}
-
 	virtual void getAnalysisUsage(AnalysisUsage &AU) const
 	{
-		AU.addRequired<AliasAnalysis>();
+		//AU.addRequired<AliasAnalysis>();
 		//AU.setPreservesAll();
 	}
 
 	virtual bool runOnFunction(Function &F)
 	{
-		AA = &getAnalysis<AliasAnalysis>();
 		++FreeCounter;
 		errs() << "Free Placement:" << F.getName() << "\n";
 		std::vector<ReturnInst*> Returns;
 		std::vector<CallInst*> Frees;
 
 		int StackCounter = 1;
-
-		bool Changed = false;
-
-		//BasicBlock &BB = F.getEntryBlock();  // Get the entry node for the function
-
-		Returns.clear();
-		Frees.clear();
-
-		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
-		{
-			for (BasicBlock::iterator I = BI->begin(), E = BI->end(); I != E; ++I)
-				if (CallInst *AI = dyn_cast<CallInst>(I))
-				{
-					if(AI->getCalledFunction()->getName().compare_lower("free") == 0)
-						Frees.push_back(AI);
-				}
-		}
-
-		// Funtion iterator returns an iterator which iterates through the basic block
-		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
-		{
-			for (BasicBlock::iterator I = BI->begin(), E = BI->end(); I != E; ++I)
-				if (ReturnInst *AI = dyn_cast<ReturnInst>(I))
-				{
-					Returns.push_back(AI);
-				}
-		}
 
 		// Funtion iterator returns an iterator which iterates through the basic block
 		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
@@ -135,9 +90,9 @@ struct FreePlacement : public FunctionPass {
 						  WriteAsOperand(os1, AI, true, F.getParent());
 					}
 
-					char* stackLoc;
+					char* stackLoc = new char[50];
 					sprintf(stackLoc, "Stack%d", StackCounter++);
-					//pointsToGraph.addVertices(o1, stackLoc, Edge::MAY);
+					pointsToGraph.addVertices(o1, stackLoc, Edge::MAY);
 					errs() << "Alloca: " << o1 << "\n";
 				}
 				else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))
@@ -148,12 +103,13 @@ struct FreePlacement : public FunctionPass {
 						  WriteAsOperand(os2, AI -> getOperand(0), true, F.getParent());
 					}
 					errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
+
 				}
 			}
 
 		}
 
-		//pointsToGraph.createDotFile("pointsToGraph.dot");
+		pointsToGraph.createDotFile("pointsToGraph.dot");
 
 //		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
 //		{
@@ -174,7 +130,7 @@ struct FreePlacement : public FunctionPass {
 //				}
 //			}
 //		}
-		return Changed;
+		return false;
 	}
 };
 }
