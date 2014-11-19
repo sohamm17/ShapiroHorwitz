@@ -95,16 +95,10 @@ struct FreePlacement : public FunctionPass {
 
 					char* stackLoc = new char[50];
 					sprintf(stackLoc, "Stack%d", StackCounter++);
-					pointsToGraph.addVertices(o1, stackLoc, Edge::MAY);
 					//errs() << "Alloca: " << o1 << "\n";
-				}
-				else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))
-				{
-					{
-						  raw_string_ostream os1(o1), os2(o2);
-						  WriteAsOperand(os1, AI, true, F.getParent());
-						  WriteAsOperand(os2, AI -> getOperand(0), true, F.getParent());
-					}
+					pointsToGraph.createVertices(o1, stackLoc, Edge::MAY);
+					errs() << "Alloca: " << o1 << "\n";
+
 					//pointsToGraph.clone(o1, o2, Edge::MAY);
 					//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
 				}
@@ -117,10 +111,10 @@ struct FreePlacement : public FunctionPass {
 							WriteAsOperand(os1, AI, true, F.getParent());
 						}
 						errs() << "LHS: " << o1 << "\n";
+						char* heapLoc = new char[50];
+						sprintf(heapLoc, "Malloc%d", HeapCounter++);
+						pointsToGraph.createVertices(o1, heapLoc, Edge::MUST);
 					}
-					char* heapLoc = new char[50];
-					sprintf(heapLoc, "Stack%d", HeapCounter++);
-					pointsToGraph.addVertices(o1, heapLoc, Edge::MUST);
 				}
 			}
 		}

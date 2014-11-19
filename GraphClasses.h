@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <map>
 
 
 
@@ -65,22 +66,32 @@ public:
 class Graph {
 private:
 	std::vector<Vertex*> * vertices;
+	std::map<std::string, Vertex*> * vertexMap;
 
 public:
-	// to add a pre-constructed vertex to the grapp
-	void addVertex(Vertex* newVertex);
+	// to create a new vertex which is the source. Finds the vertex corresponding
+	// to the input target label and attaches the new source vertex to it.
+	// Vertex is added to the graph.
+	void createVertex(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
 
 
-	// given a string variable and source and the edge type, this method will
+	// given two variables and the edge type (MAY or MUST), this method will
 	// construct two new vertices, construct an edge between them, and add the
 	// vertices to the graph
-	void addVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
+	void createVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
+
+
+	// given the label of a current vertex and a new label, this method constructs a new
+	// vertex with the same outgoing edges as the old vertex. Adds to graph
+	void cloneVertex(std::string newLabel, std::string oldLabel);
 
 	// creates a dot file of the graph for visual inspection
 	void createDotFile(std::string fileName);
 
+	//default constructor. Makes an empty graph
 	Graph();
 
+	// getter method
 	std::vector<Vertex*> * getVertices() { return vertices;}
 
 };
