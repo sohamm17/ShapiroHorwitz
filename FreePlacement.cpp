@@ -23,6 +23,8 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Assembly/Writer.h"
+#include "GraphClasses.cpp"
+
 using namespace llvm;
 
 STATISTIC(FreeCounter, "Counts number of pointers");
@@ -32,6 +34,7 @@ namespace {
 struct FreePlacement : public FunctionPass {
 	static char ID; // Pass identification, replacement for typeid
 	AliasAnalysis *AA;
+	Graph pointsToGraph;
 	FreePlacement() : FunctionPass(ID) {}
 
 	bool isFreeWritten(Value * operand, std::vector<CallInst*> FreeList)
@@ -63,6 +66,9 @@ struct FreePlacement : public FunctionPass {
 		errs() << "Free Placement:" << F.getName() << "\n";
 		std::vector<ReturnInst*> Returns;
 		std::vector<CallInst*> Frees;
+
+		int StackCounter = 1;
+
 		bool Changed = false;
 
 		//BasicBlock &BB = F.getEntryBlock();  // Get the entry node for the function
@@ -126,6 +132,7 @@ struct FreePlacement : public FunctionPass {
 						  raw_string_ostream os1(o1);
 						  WriteAsOperand(os1, AI, true, F.getParent());
 					}
+					pointsToGraph.addVertices(o1, "Stack" + StackCounter++, Edge::MAY);
 					errs() << "Alloca: " << o1 << "\n";
 				}
 				else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))

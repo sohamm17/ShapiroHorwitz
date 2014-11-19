@@ -1,5 +1,6 @@
 #include "GraphClasses.h"
 #include <vector>
+#include <string>
 
 /////////////////    Edge class    ///////////////////////
 

@@ -68,7 +68,9 @@
   /home/sohamgrad/llvm/llvm-3.4/include/llvm/ADT/SmallString.h \
   /home/sohamgrad/llvm/llvm-3.4/include/llvm/Support/TimeValue.h \
   /home/sohamgrad/llvm/llvm-3.4/include/llvm/Support/system_error.h \
-  /home/sohamgrad/llvm/llvm-3.4/include/llvm/Assembly/Writer.h
+  /home/sohamgrad/llvm/llvm-3.4/include/llvm/Assembly/Writer.h \
+  /home/sohamgrad/llvm/llvm-3.4/lib/Transforms/FreePlacement/GraphClasses.cpp \
+  /home/sohamgrad/llvm/llvm-3.4/lib/Transforms/FreePlacement/GraphClasses.h
 
 /home/sohamgrad/llvm/llvm-3.4/include/llvm/Analysis/AliasAnalysis.h:
 
@@ -205,3 +207,7 @@
 /home/sohamgrad/llvm/llvm-3.4/include/llvm/Support/system_error.h:
 
 /home/sohamgrad/llvm/llvm-3.4/include/llvm/Assembly/Writer.h:
+
+/home/sohamgrad/llvm/llvm-3.4/lib/Transforms/FreePlacement/GraphClasses.cpp:
+
+/home/sohamgrad/llvm/llvm-3.4/lib/Transforms/FreePlacement/GraphClasses.h:
