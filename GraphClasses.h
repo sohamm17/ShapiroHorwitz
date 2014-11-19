@@ -66,7 +66,7 @@ public:
 class Graph {
 private:
 	std::vector<Vertex*> * vertices;
-	std::map<std::string, Vertex*> vertexMap;
+	std::map<std::string, Vertex*> * vertexMap;
 
 public:
 	// to create a new vertex which is the source. Finds the vertex corresponding

@@ -71,24 +71,44 @@ Graph::Graph()
 	vertexMap = new std::map<std::string, Vertex*>;
 }
 
-void Graph::createVertex(std::string varLabel)
+
+
+// to create a new vertex which is the source. Finds the vertex corresponding
+// to the input target label and attaches the new source vertex to it.
+// Vertex is added to the graph.
+void Graph::createVertex(std::string sourceVar, std::string targetVar, Edge::EdgeType type)
 {
-	Vertex * newVertex = new Vertex(varLabel);
-	vertexMap[varLabel] = newVertex;
+	Vertex * targetVertex = (*vertexMap)[targetVar];
+	Vertex * newVertex = new Vertex(sourceVar, targetVertex, type);
+	(*vertexMap)[sourceVar] = newVertex;
 	vertices->push_back(newVertex);
+
+
+
 }
+
 
 void Graph::createVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type)
 {
 	Vertex * targetVertex = new Vertex(targetVar);
-	vertexMap[targetVar] = targetVertex;
+	(*vertexMap)[targetVar] = targetVertex;
 
 	Vertex * sourceVertex = new Vertex(sourceVar, targetVertex, type);
-	vertexMap[sourceVar] = sourceVertex;
+	(*vertexMap)[sourceVar] = sourceVertex;
 
 	vertices->push_back(sourceVertex);
 	vertices->push_back(targetVertex);
 
+}
+
+
+
+// given the label of a current vertex and a new label, this method constructs a new
+// vertex with the same outgoing edges as the old vertex. Adds to graph
+void Graph::cloneVertex(std::string newLabel, std::string oldLabel)
+{
+	//TODO
+	return;
 }
 
 

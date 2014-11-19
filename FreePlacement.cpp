@@ -92,7 +92,7 @@ struct FreePlacement : public FunctionPass {
 
 					char* stackLoc = new char[50];
 					sprintf(stackLoc, "Stack%d", StackCounter++);
-					pointsToGraph.addVertices(o1, stackLoc, Edge::MAY);
+					pointsToGraph.createVertices(o1, stackLoc, Edge::MAY);
 					errs() << "Alloca: " << o1 << "\n";
 				}
 				else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))
