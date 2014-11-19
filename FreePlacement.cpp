@@ -137,7 +137,7 @@ struct FreePlacement : public FunctionPass {
 
 					char* stackLoc;
 					sprintf(stackLoc, "Stack%d", StackCounter++);
-					pointsToGraph.addVertices(o1, stackLoc, Edge::MAY);
+					//pointsToGraph.addVertices(o1, stackLoc, Edge::MAY);
 					errs() << "Alloca: " << o1 << "\n";
 				}
 				else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))
@@ -152,6 +152,8 @@ struct FreePlacement : public FunctionPass {
 			}
 
 		}
+
+		//pointsToGraph.createDotFile("pointsToGraph.dot");
 
 //		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
 //		{

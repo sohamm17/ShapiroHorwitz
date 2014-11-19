@@ -54,7 +54,7 @@ public:
 
 	std::string getFirstLabel();
 
-	std::vector<Edge> getOutEdges();
+	std::vector<Edge *> * getOutEdges();
 };
 
 
@@ -81,7 +81,7 @@ public:
 
 	Graph();
 
-	std::vector<Vertex*> getVertices() { return vertices;}
+	std::vector<Vertex*> * getVertices() { return vertices;}
 
 };
 

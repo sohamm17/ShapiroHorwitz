@@ -58,7 +58,7 @@ std::string Vertex::getFirstLabel()
 	return (*variables)[0];
 }
 
-std::vector<Edge> Vertex::getOutEdges()
+std::vector<Edge *> * Vertex::getOutEdges()
 {
 	return outEdges;
 }
@@ -88,10 +88,10 @@ void Graph::addVertices(std::string sourceVar, std::string targetVar, Edge::Edge
 void Graph::createDotFile(std::string fileName)
 {
 	std::ofstream outFile;
-	outFile.open(fileName);
+	outFile.open(fileName.c_str());
 
 	outFile << "digraph {\n";
-	outFile << "ordering=out\;nranksep=.4;\n  bgcolor=\"lightgrey\"; node [shape=box, fixedsize=false, fontsize=12, fontname=\"Helvetica-bold\", fontcolor=\"blue\"\n";
+	outFile << "ordering=out;\nranksep=.4;\n  bgcolor=\"lightgrey\"; node [shape=box, fixedsize=false, fontsize=12, fontname=\"Helvetica-bold\", fontcolor=\"blue\"\n";
     outFile << "width=.25, height=.25, color=\"black\", fillcolor=\"white\", style=\"filled, solid, bold\"];\n";
 	outFile << "edge [arrowsize=.5, color=\"black\", style=\"bold\"];\n";
 
