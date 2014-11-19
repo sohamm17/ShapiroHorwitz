@@ -18,6 +18,8 @@ public:
 		MUST = 1
 	};
 
+	Vertex * getTarget();
+
 private:
 	Vertex * target;
 	EdgeType type;
@@ -49,6 +51,10 @@ public:
 
 	// add an edge to a newly constructed vertex
 	void addTarget(std::string targetVar, Edge::EdgeType type);
+
+	std::string getFirstLabel();
+
+	std::vector<Edge> getOutEdges();
 };
 
 
@@ -69,7 +75,13 @@ public:
 	// construct two new vertices, construct an edge between them, and add the
 	// vertices to the graph
 	void addVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
+
+	// creates a dot file of the graph for visual inspection
+	void createDotFile(std::string fileName);
+
 	Graph();
+
+	std::vector<Vertex*> getVertices() { return vertices;}
 
 };
 
