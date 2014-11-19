@@ -51,7 +51,7 @@ struct FreePlacement : public FunctionPass {
 		std::vector<ReturnInst*> Returns;
 		std::vector<CallInst*> Frees;
 
-		int StackCounter = 1;
+		int StackCounter = 1, HeapCounter = 1;
 
 		// Funtion iterator returns an iterator which iterates through the basic block
 		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
@@ -61,15 +61,15 @@ struct FreePlacement : public FunctionPass {
 				std::string o1, o2;
 				if (LoadInst *AI = dyn_cast<LoadInst>(I))
 				{
-					errs() << "Load: " << *I << "\n";
+					//errs() << "Load: " << *I << "\n";
 					{
 						  raw_string_ostream os1(o1), os2(o2);
 						  WriteAsOperand(os1, AI, true, F.getParent());
 						  WriteAsOperand(os2, AI -> getOperand(0), true, F.getParent());
 					}
 					//WriteAsOperand(errs(), AI->getOperand(0), true, F.getParent());
-					errs() << o1 << "\t" << o2 << "\n";
-					errs() << "\n\n";
+					//errs() << o1 << "\t" << o2 << "\n";
+					//errs() << "\n\n";
 				}
 				else if(StoreInst *AI = dyn_cast<StoreInst>(I))
 				{
@@ -79,9 +79,12 @@ struct FreePlacement : public FunctionPass {
 						  WriteAsOperand(os1, AI->getOperand(0), true, F.getParent());
 						  WriteAsOperand(os2, AI->getOperand(1), true, F.getParent());
 					}
-					errs() << "Operand0:" << o1;
-					errs() << "\tOperand1:" << o2;
-					errs() << "\n\n";
+					if(Type *firstOperandType = dyn_cast<PointerType>(AI->getOperand(0)->getType()))
+					{
+						errs() << "Operand0:" << o1 << ":" << *AI->getOperand(0)->getType();
+						errs() << "\tOperand1:" << o2 << ":" << *AI->getOperand(1)->getType();
+						errs() << "\n\n";
+					}
 				}
 				else if(AllocaInst *AI = dyn_cast<AllocaInst>(I))
 				{
@@ -93,7 +96,7 @@ struct FreePlacement : public FunctionPass {
 					char* stackLoc = new char[50];
 					sprintf(stackLoc, "Stack%d", StackCounter++);
 					pointsToGraph.addVertices(o1, stackLoc, Edge::MAY);
-					errs() << "Alloca: " << o1 << "\n";
+					//errs() << "Alloca: " << o1 << "\n";
 				}
 				else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))
 				{
@@ -102,11 +105,24 @@ struct FreePlacement : public FunctionPass {
 						  WriteAsOperand(os1, AI, true, F.getParent());
 						  WriteAsOperand(os2, AI -> getOperand(0), true, F.getParent());
 					}
-					errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
-
+					//pointsToGraph.clone(o1, o2, Edge::MAY);
+					//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
+				}
+				else if(CallInst *AI = dyn_cast<CallInst>(I))
+				{
+					if(AI->getCalledFunction()->getName().compare_lower("malloc") == 0)
+					{
+						{
+							raw_string_ostream os1(o1);
+							WriteAsOperand(os1, AI, true, F.getParent());
+						}
+						errs() << "LHS: " << o1 << "\n";
+					}
+					char* heapLoc = new char[50];
+					sprintf(heapLoc, "Stack%d", HeapCounter++);
+					pointsToGraph.addVertices(o1, heapLoc, Edge::MUST);
 				}
 			}
-
 		}
 
 		pointsToGraph.createDotFile("pointsToGraph.dot");
