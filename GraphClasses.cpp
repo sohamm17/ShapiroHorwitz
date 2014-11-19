@@ -1,6 +1,4 @@
 #include "GraphClasses.h"
-#include <vector>
-#include <string>
 
 /////////////////    Edge class    ///////////////////////
 
@@ -73,7 +71,3 @@ void Graph::addVertices(std::string sourceVar, std::string targetVar, Edge::Edge
 	vertices->push_back(targetVertex);
 
 }
-
-
-
-
