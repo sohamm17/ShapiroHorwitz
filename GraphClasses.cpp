@@ -68,17 +68,24 @@ std::vector<Edge *> * Vertex::getOutEdges()
 Graph::Graph()
 {
 	vertices = new std::vector<Vertex*>();
+	vertexMap = new std::map<std::string, Vertex*>;
 }
 
-void Graph::addVertex(Vertex* newVertex)
+void Graph::createVertex(std::string varLabel)
 {
+	Vertex * newVertex = new Vertex(varLabel);
+	vertexMap[varLabel] = newVertex;
 	vertices->push_back(newVertex);
 }
 
-void Graph::addVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type)
+void Graph::createVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type)
 {
 	Vertex * targetVertex = new Vertex(targetVar);
+	vertexMap[targetVar] = targetVertex;
+
 	Vertex * sourceVertex = new Vertex(sourceVar, targetVertex, type);
+	vertexMap[sourceVar] = sourceVertex;
+
 	vertices->push_back(sourceVertex);
 	vertices->push_back(targetVertex);
 
