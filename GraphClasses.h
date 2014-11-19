@@ -19,6 +19,8 @@ public:
 		MUST = 1
 	};
 
+	EdgeType getType();
+
 	Vertex * getTarget();
 
 private:
@@ -83,7 +85,8 @@ public:
 
 	// given the label of a current vertex and a new label, this method constructs a new
 	// vertex with the same outgoing edges as the old vertex. Adds to graph
-	void cloneVertex(std::string newLabel, std::string oldLabel);
+	// if clong is successful, return true, otherwise false
+	bool cloneVertex(std::string newLabel, std::string oldLabel);
 
 	// creates a dot file of the graph for visual inspection
 	void createDotFile(std::string fileName);

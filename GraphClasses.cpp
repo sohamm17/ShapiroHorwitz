@@ -12,6 +12,11 @@ Edge::Edge(Vertex * target, EdgeType type)
 
 }
 
+Edge::EdgeType Edge::getType()
+{
+	return type;
+}
+
 Vertex* Edge::getTarget()
 {
 	return target;
@@ -105,10 +110,27 @@ void Graph::createVertices(std::string sourceVar, std::string targetVar, Edge::E
 
 // given the label of a current vertex and a new label, this method constructs a new
 // vertex with the same outgoing edges as the old vertex. Adds to graph
-void Graph::cloneVertex(std::string newLabel, std::string oldLabel)
+bool Graph::cloneVertex(std::string newLabel, std::string oldLabel)
 {
 	//TODO
-	return;
+	Vertex * oldVertex = (*vertexMap)[oldLabel];
+	if(oldVertex == NULL)
+	{
+		return false;
+		//Throw error
+	}
+	Vertex * newVertex = new Vertex(newLabel);
+	vertices->push_back(newVertex);
+
+	std::vector<Edge *> oldOutEdges = *(oldVertex->getOutEdges());
+
+	unsigned int i;
+	for(i = 0; i < oldOutEdges.size(); i++)
+	{
+		Edge currentEdge = *(oldOutEdges[i]);
+		newVertex->addTarget(currentEdge.getTarget(), currentEdge.getType());
+	}
+	return true;
 }
 
 

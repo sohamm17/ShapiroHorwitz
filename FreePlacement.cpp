@@ -102,6 +102,20 @@ struct FreePlacement : public FunctionPass {
 					//pointsToGraph.clone(o1, o2, Edge::MAY);
 					//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
 				}
+				else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))
+				{
+					{
+						  raw_string_ostream os1(o1), os2(o2);
+						  WriteAsOperand(os1, AI, true, F.getParent());
+						  WriteAsOperand(os2, AI->getOperand(0), true, F.getParent());
+					}
+
+					if(!pointsToGraph.cloneVertex(o1, o2))
+						errs() << "BitCast: Clonning problem:\t" << o2 << "\t" << o1 << "\n";
+					else
+						errs() << "BitCast: Clonning happened:\t" << o2 << "\t" << o1 << "\n";
+					//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
+				}
 				else if(CallInst *AI = dyn_cast<CallInst>(I))
 				{
 					if(AI->getCalledFunction()->getName().compare_lower("malloc") == 0)
