@@ -134,6 +134,22 @@ bool Graph::cloneVertex(std::string newLabel, std::string oldLabel)
 }
 
 
+
+// given two labels correspondng to vertices A and B, this method adds edges from all children of A
+// to all children of B
+void Graph::storeConnect(std::string a, std::string b){
+
+	Vertex * A = getVertexAtLabel(a);
+	Vertex * B = getVertexAtLabel(b);
+
+	fullConnectSets(A->getOutEdges(), B->getOutEdges());
+
+
+}
+
+
+
+
 void Graph::createDotFile(std::string fileName)
 {
 	std::ofstream outFile;
@@ -173,8 +189,15 @@ Vertex * Graph::getVertexAtLabel(std::string label)
 	// note: this may need a safety check since apparently at throws an exception
 		return vertexMap->at(label);
 
-
 }
 
+
+// given two vectors of edge pointers E1 and E2, this method adds edges from the target of edges in E1
+// to the target of all edges in E2
+void fullConnectSets(std::vector<Edge*> * E1, std::vector<Edge*> * E2)
+{
+	//todo
+
+}
 
 

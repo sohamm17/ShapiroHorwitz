@@ -88,6 +88,12 @@ public:
 	// if clong is successful, return true, otherwise false
 	bool cloneVertex(std::string newLabel, std::string oldLabel);
 
+
+
+	// given two labels correspondng to vertices A and B, this method adds edges from all children of A
+	// to all children of B. Called to process "store" calls in LLVM
+	void storeConnect(std::string a, std::string b);
+
 	// creates a dot file of the graph for visual inspection
 	void createDotFile(std::string fileName);
 
@@ -102,6 +108,9 @@ private:
 	// given a label, returns the vertex which the label corresponds to
 	Vertex * getVertexAtLabel(std::string label);
 
+	// given two vectors of edge pointers E1 and E2, this method adds edges from the target of edges in E1
+	// to the target of all edges in E2
+	void fullConnectSets(std::vector<Edge*> * E1, std::vector<Edge*> * E2);
 };
 
 
