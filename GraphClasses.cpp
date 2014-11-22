@@ -194,9 +194,23 @@ Vertex * Graph::getVertexAtLabel(std::string label)
 
 // given two vectors of edge pointers E1 and E2, this method adds edges from the target of edges in E1
 // to the target of all edges in E2
-void fullConnectSets(std::vector<Edge*> * E1, std::vector<Edge*> * E2)
+void Graph::fullConnectSets(std::vector<Edge*> * E1, std::vector<Edge*> * E2)
 {
-	//todo
+
+	std::vector<Edge*> sourceEdges = *E1;
+	std::vector<Edge*> targetEdges = *E2;
+
+	for (int i = 0; i < sourceEdges.size(); i++)
+	{
+		Edge * currentSourceEdge = sourceEdges[i];
+		Vertex * currentSourceVertex = currentSourceEdge->getTarget();
+		for (int j = 0; j < targetEdges.size(); j++)
+		{
+			Edge * currentTargetEdge = targetEdges[j];
+			Vertex * currentTargetVertex = currentTargetEdge->getTarget();
+			currentSourceVertex->addTarget(currentTargetVertex, currentTargetEdge->getType());
+		}
+	}
 
 }
 
