@@ -166,3 +166,15 @@ void Graph::createDotFile(std::string fileName)
 
 
 }
+
+
+Vertex * Graph::getVertexAtLabel(std::string label)
+{
+	// note: this may need a safety check since apparently at throws an exception
+		return vertexMap->at(label);
+
+
+}
+
+
+

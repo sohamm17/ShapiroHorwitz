@@ -97,6 +97,11 @@ public:
 	// getter method
 	std::vector<Vertex*> * getVertices() { return vertices;}
 
+
+private:
+	// given a label, returns the vertex which the label corresponds to
+	Vertex * getVertexAtLabel(std::string label);
+
 };
 
 
