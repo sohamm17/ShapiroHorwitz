@@ -55,6 +55,10 @@ public:
 	// add an edge to a newly constructed vertex
 	void addTarget(std::string targetVar, Edge::EdgeType type);
 
+	// given another vertex, this method copies every edge outgoing from the other vertex
+	// and adds to this one
+	void addTargetsOfOther(Vertex * otherVertex);
+
 	std::string getFirstLabel();
 
 	std::vector<Edge *> * getOutEdges();
@@ -76,6 +80,9 @@ public:
 	// Vertex is added to the graph.
 	void createVertex(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
 
+	// to create a new vertex without edges and add it to the graph.
+	Vertex * createVertex(std::string vertexLabel);
+
 
 	// given two variables and the edge type (MAY or MUST), this method will
 	// construct two new vertices, construct an edge between them, and add the
@@ -93,6 +100,11 @@ public:
 	// given two labels correspondng to vertices A and B, this method adds edges from all children of A
 	// to all children of B. Called to process "store" calls in LLVM
 	void storeConnect(std::string a, std::string b);
+
+	// given two labels correspondng to existing vertex A and to-be-constructed vetex B,
+	// this method creates B with outgoing edges copied from all children of A
+	// Called to process "load" calls in LLVM
+	void loadConnect(std::string a, std::string b);
 
 	// creates a dot file of the graph for visual inspection
 	void createDotFile(std::string fileName);

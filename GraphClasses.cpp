@@ -58,6 +58,19 @@ void Vertex::addTarget(std::string targetVar, Edge::EdgeType type)
 	this->outEdges->push_back(outEdge);
 }
 
+// given another vertex, this method copies every edge outgoing from the other vertex
+// and adds to this one
+void Vertex::addTargetsOfOther(Vertex * otherVertex)
+{
+	std::vector<Edge*>  copyEdges = *(otherVertex->getOutEdges());
+	for (int i = 0; i < copyEdges.size(); i++)
+	{
+		Edge* edgeToCopy = copyEdges[i];
+		this->addTarget(edgeToCopy->getTarget(), edgeToCopy->getType());
+
+	}
+}
+
 std::string Vertex::getFirstLabel()
 {
 	return (*variables)[0];
@@ -93,6 +106,16 @@ void Graph::createVertex(std::string sourceVar, std::string targetVar, Edge::Edg
 }
 
 
+// to create a new vertex without edges and add it to the graph.
+Vertex * Graph::createVertex(std::string vertexLabel)
+{
+	Vertex * newVertex = new Vertex(vertexLabel);
+	(*vertexMap)[vertexLabel] = newVertex;
+	vertices->push_back(newVertex);
+	return newVertex;
+}
+
+
 void Graph::createVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type)
 {
 	Vertex * targetVertex = new Vertex(targetVar);
@@ -119,8 +142,8 @@ bool Graph::cloneVertex(std::string newLabel, std::string oldLabel)
 		return false;
 		//Throw error
 	}
-	Vertex * newVertex = new Vertex(newLabel);
-	vertices->push_back(newVertex);
+	Vertex * newVertex = createVertex(newLabel);
+	//vertices->push_back(newVertex);
 
 	std::vector<Edge *> oldOutEdges = *(oldVertex->getOutEdges());
 
@@ -148,6 +171,21 @@ void Graph::storeConnect(std::string a, std::string b){
 }
 
 
+// given two labels correspondng to existing vertex A and to-be-constructed vetex B,
+// this method creates B with outgoing edges copied from all children of A
+// Called to process "load" calls in LLVM
+void Graph::loadConnect(std::string a, std::string b)
+{
+	Vertex * A = getVertexAtLabel(a);
+	Vertex * B = createVertex(b);
+	std::vector<Edge *> edges = *(A->getOutEdges());
+	for (int i = 0; i < edges.size(); i++)
+	{
+		Edge * currentEdge = edges[i];
+		Vertex * currentVertex = currentEdge->getTarget();
+		B->addTargetsOfOther(currentVertex);
+	}
+}
 
 
 void Graph::createDotFile(std::string fileName)
