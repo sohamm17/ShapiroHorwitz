@@ -23,7 +23,11 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Assembly/Writer.h"
+#include "llvm/ADT/SetVector.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/Support/InstIterator.h"
 #include "GraphClasses.h"
+#include "Categorize.h"
 #include <string>
 #include <stdio.h>
 
@@ -42,6 +46,89 @@ struct FreePlacement : public FunctionPass {
 	{
 		//AU.addRequired<AliasAnalysis>();
 		//AU.setPreservesAll();
+	}
+
+	static inline bool isInterestingPointer(Value *V) {
+	  return V->getType()->isPointerTy()
+	      && !isa<ConstantPointerNull>(V);
+	}
+
+	void getPointersCategorized(Function &F, int k)
+	{
+		  SetVector<Value *> Pointers;
+		  SetVector<CallSite> CallSites;
+		  //SetVector<Value *> Loads;
+		  //SetVector<Value *> Stores;
+
+		  for (Function::arg_iterator I = F.arg_begin(), E = F.arg_end(); I != E; ++I)
+		    if (I->getType()->isPointerTy())    // Add all pointer arguments.
+		      Pointers.insert(I);
+
+		  for (inst_iterator I = inst_begin(F), E = inst_end(F); I != E; ++I) {
+		    if (I->getType()->isPointerTy()) // Add all pointer instructions.
+		      Pointers.insert(&*I);
+//		    if (EvalTBAA && isa<LoadInst>(&*I))
+//		      Loads.insert(&*I);
+//		    if (EvalTBAA && isa<StoreInst>(&*I))
+//		      Stores.insert(&*I);
+		    Instruction &Inst = *I;
+		    if (CallSite CS = cast<Value>(&Inst)) {
+		      Value *Callee = CS.getCalledValue();
+		      // Skip actual functions for direct function calls.
+		      if (!isa<Function>(Callee) && isInterestingPointer(Callee))
+		        Pointers.insert(Callee);
+		      // Consider formals.
+		      for (CallSite::arg_iterator AI = CS.arg_begin(), AE = CS.arg_end();
+		           AI != AE; ++AI)
+		        if (isInterestingPointer(*AI))
+		          Pointers.insert(*AI);
+		      CallSites.insert(CS);
+		    } else {
+		      // Consider all operands.
+		      for (Instruction::op_iterator OI = Inst.op_begin(), OE = Inst.op_end();
+		           OI != OE; ++OI)
+		        if (isInterestingPointer(*OI))
+		          Pointers.insert(*OI);
+		    }
+		  }
+
+		  for (SetVector<Value *>::iterator I1 = Pointers.begin(), E = Pointers.end();
+		         I1 != E; ++I1)
+		  {
+				std::string o1, o2;
+				{
+					  raw_string_ostream os1(o1), os2(o2);
+					  WriteAsOperand(os1, *I1, true, F.getParent());
+				}
+				errs() << o1 << "\n";
+		  }
+
+
+		  llvm::shapiro::testTemplate<std::string> test;
+		  llvm::shapiro::Categorize<Value *> categories(Pointers, 4);
+		  //errs() << "Back to LLVM after constructor";
+		  int i;
+		  for(i = 0, errs() << "Started loop"; i < categories.getNumberOfRuns(); i++)
+		  {
+			  errs() << "\nRun :" << i + 1 << "\n";
+			  int j;
+			  for(j = 0; j < categories.getNumberOfCategories(); j++)
+			  {
+				  errs() << j << ": [";
+				  std::vector<Value *> category = categories.getCategory(j, i);
+				  int k;
+				  for(k = 0; k < (int)category.size(); k++)
+				  {
+					  std::string o1, o2;
+					  {
+						  raw_string_ostream os1(o1);
+						  WriteAsOperand(os1, (category[k]), true, F.getParent());
+					  }
+					  errs() << o1 << " ";
+				  }
+				  errs() << "]\n";
+			  }
+		  }
 	}
 
 	virtual bool runOnFunction(Function &F)
@@ -79,11 +166,13 @@ struct FreePlacement : public FunctionPass {
 						  WriteAsOperand(os1, AI->getOperand(0), true, F.getParent());
 						  WriteAsOperand(os2, AI->getOperand(1), true, F.getParent());
 					}
+
 					if(Type *firstOperandType = dyn_cast<PointerType>(AI->getOperand(0)->getType()))
 					{
-						errs() << "Operand0:" << o1 << ":" << *AI->getOperand(0)->getType();
-						errs() << "\tOperand1:" << o2 << ":" << *AI->getOperand(1)->getType();
+						errs() << "Operand1:" << o1 << ":" << *AI->getOperand(0)->getType();
+						errs() << "\tOperand2:" << o2 << ":" << *AI->getOperand(1)->getType();
 						errs() << "\n\n";
+						//pointsToGraph.storeConnect(o2, o1);
 					}
 				}
 				else if(AllocaInst *AI = dyn_cast<AllocaInst>(I))
@@ -110,6 +199,7 @@ struct FreePlacement : public FunctionPass {
 						  WriteAsOperand(os2, AI->getOperand(0), true, F.getParent());
 					}
 
+
 					if(!pointsToGraph.cloneVertex(o1, o2))
 						errs() << "BitCast: Clonning problem:\t" << o2 << "\t" << o1 << "\n";
 					else
@@ -134,6 +224,9 @@ struct FreePlacement : public FunctionPass {
 		}
 
 		pointsToGraph.createDotFile("pointsToGraph.dot");
+
+		getPointersCategorized(F, 2);
+
 
 //		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
 //		{
