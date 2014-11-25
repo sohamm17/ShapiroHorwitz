@@ -89,12 +89,15 @@ public:
 	// vertices to the graph
 	void createVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
 
+	// given labels corresponding to vertices, this method adds an edge from the source
+	// to the target
+	bool createEdge(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
+
 
 	// given the label of a current vertex and a new label, this method constructs a new
 	// vertex with the same outgoing edges as the old vertex. Adds to graph
 	// if clong is successful, return true, otherwise false
 	bool cloneVertex(std::string newLabel, std::string oldLabel);
-
 
 
 	// given two labels correspondng to vertices A and B, this method adds edges from all children of A

@@ -130,6 +130,23 @@ void Graph::createVertices(std::string sourceVar, std::string targetVar, Edge::E
 }
 
 
+// given labels corresponding to vertices, this method adds an edge from the source
+// to the target
+bool Graph::createEdge(std::string sourceVar, std::string targetVar, Edge::EdgeType type)
+{
+	Vertex * sourceVertex = (*vertexMap)[sourceVar];
+	Vertex * targetVertex = (*vertexMap)[targetVar];
+	if(sourceVertex == NULL || targetVertex == NULL)
+	{
+		return false;
+		//Throw error
+	}
+
+	sourceVertex->addTarget(targetVertex, Edge::MAY);
+	return true;
+
+}
+
 
 // given the label of a current vertex and a new label, this method constructs a new
 // vertex with the same outgoing edges as the old vertex. Adds to graph
