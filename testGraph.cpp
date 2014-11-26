@@ -8,9 +8,9 @@ int testVertex()
 	// just to see if the methods run and don't crash or anything
 	// won't check for correctness
 	Vertex * v1 = new Vertex("v1");
-	Vertex * v2 = new Vertex("v2", v1, Edge::MAY);
-	v1->addTarget(v2, Edge::MAY);
-	v1->addTarget("v3", Edge::MUST);
+	Vertex * v2 = new Vertex("v2", v1);
+	v1->addTarget(v2);
+	v1->addTarget("v3");
 	Vertex * v4 = new Vertex("v4");
 	v4->addTargetsOfOther(v1);
 	return 0;
@@ -19,23 +19,23 @@ int testVertex()
 
 int testGraph()
 {
-	Graph * testG = new Graph();
+	Graph * testG = new Graph(NULL);
 
 	// vertex no edges
 	testG->createVertex(std::string("A1"));
 
 	// attach new vertex A2 to A1
-	testG->createVertex(std::string("A2"), std::string("A1"), Edge::MAY);
+	testG->createVertex(std::string("A2"), std::string("A1"));
 
 	// clone A2
 	testG->cloneVertex(std::string("A3"), std::string("A2"));
 
 
 
-	testG->createVertices("A4", "A5", Edge::MAY);
+	testG->createVertices("A4", "A5");
 
 	testG->createVertex("A6");
-	testG->createEdge("A4", "A6", Edge::MAY);
+	testG->createEdge("A4", "A6");
 
 
 
@@ -44,8 +44,8 @@ int testGraph()
 	testG->storeConnect("A2", "A4");
 
 	testG->createVertex("A7");
-	testG->createVertex("A8", "A7", Edge::MAY);
-	testG->createEdge("A2", "A8", Edge::MAY);
+	testG->createVertex("A8", "A7");
+	testG->createEdge("A2", "A8");
 
 	testG->loadConnect("A2", "A9");
 

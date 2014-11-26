@@ -203,7 +203,7 @@ struct FreePlacement : public FunctionPass {
 					char* stackLoc = new char[50];
 					sprintf(stackLoc, "Stack%d", StackCounter++);
 					//errs() << "Alloca: " << o1 << "\n";
-					pointsToGraph.createVertices(o1, stackLoc, Edge::MAY);
+					pointsToGraph.createVertices(o1, stackLoc);
 					errs() << "Alloca: " << o1 << "\n";
 
 					//pointsToGraph.clone(o1, o2, Edge::MAY);
@@ -239,7 +239,7 @@ struct FreePlacement : public FunctionPass {
 						errs() << "LHS: " << o1 << "\n";
 						char* heapLoc = new char[50];
 						sprintf(heapLoc, "Malloc%d", HeapCounter++);
-						pointsToGraph.createVertices(o1, heapLoc, Edge::MUST);
+						pointsToGraph.createVertices(o1, heapLoc);
 					}
 				}
 			}

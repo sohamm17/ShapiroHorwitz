@@ -1,73 +1,12 @@
 #include <vector>
 #include <string>
 #include <map>
+#include "Edge.h"
+#include "Vertex.h"
 
 
 
 class Vertex;
-
-
-/////////////////    Edge class    ///////////////////////
-
-
-// no need to manually create edges. Use vertex methods for that
-class Edge {
-friend class Vertex;
-public:
-	enum EdgeType {
-		MAY = 0,
-		MUST = 1
-	};
-
-	EdgeType getType();
-
-	Vertex * getTarget();
-
-private:
-	Vertex * target;
-	Vertex * source;
-	EdgeType type;
-
-	Edge(Vertex * target, EdgeType type);
-
-};
-
-
-/////////////////    Vertex Class   //////////////////////
-class Vertex {
-private:
-	std::vector<Edge*> * outEdges;
-	std::vector<std::string> * variables;
-
-public:
-
-
-	// make a vertex with no outgoing edges
-	Vertex(std::string initialVariable);
-
-	// make a vertex with an outgoing edge to a target vertex
-	Vertex(std::string initialVariable, Vertex* initialTarget, Edge::EdgeType type);
-
-
-	// add an edge to a pre-constructed target Vertex
-	void addTarget(Vertex* targetVertex, Edge::EdgeType type);
-
-
-	// add an edge to a newly constructed vertex
-	void addTarget(std::string targetVar, Edge::EdgeType type);
-
-	// given another vertex, this method copies every edge outgoing from the other vertex
-	// and adds to this one
-	void addTargetsOfOther(Vertex * otherVertex);
-
-	std::string getFirstLabel();
-
-	std::vector<Edge *> * getOutEdges();
-};
-
-
-
-
 
 /////////////////    Graph Class    ////////////////////////
 class Graph {
@@ -80,7 +19,7 @@ public:
 	// to create a new vertex which is the source. Finds the vertex corresponding
 	// to the input target label and attaches the new source vertex to it.
 	// Vertex is added to the graph.
-	void createVertex(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
+	void createVertex(std::string sourceVar, std::string targetVar);
 
 	// to create a new vertex without edges and add it to the graph.
 	Vertex * createVertex(std::string vertexLabel);
@@ -89,11 +28,11 @@ public:
 	// given two variables and the edge type (MAY or MUST), this method will
 	// construct two new vertices, construct an edge between them, and add the
 	// vertices to the graph
-	void createVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
+	void createVertices(std::string sourceVar, std::string targetVar);
 
 	// given labels corresponding to vertices, this method adds an edge from the source
 	// to the target
-	bool createEdge(std::string sourceVar, std::string targetVar, Edge::EdgeType type);
+	bool createEdge(std::string sourceVar, std::string targetVar);
 
 
 	// given the label of a current vertex and a new label, this method constructs a new

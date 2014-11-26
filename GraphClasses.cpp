@@ -2,84 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-/////////////////    Edge class    ///////////////////////
 
-
-Edge::Edge(Vertex * target, EdgeType type)
-{
-	this->target = target;
-	this->type = type;
-
-}
-
-Edge::EdgeType Edge::getType()
-{
-	return type;
-}
-
-Vertex* Edge::getTarget()
-{
-	return target;
-}
-
-
-/////////////////    Vertex Class   //////////////////////
-
-
-Vertex::Vertex(std::string initialVariable)
-{
-	this->outEdges = new std::vector<Edge*>();
-	this->variables = new std::vector<std::string>();
-	this->variables->push_back(initialVariable);
-}
-
-
-Vertex::Vertex(std::string initialVariable, Vertex* initialTarget, Edge::EdgeType type)
-{
-	this->outEdges = new std::vector<Edge*>();
-	Edge * newEdge = new Edge(initialTarget, type);
-	this->outEdges->push_back(newEdge);
-	this->variables = new std::vector<std::string>();
-	this->variables->push_back(initialVariable);
-
-}
-
-
-void Vertex::addTarget(Vertex* targetVertex, Edge::EdgeType type)
-{
-	Edge * outEdge = new Edge(targetVertex, type);
-	this->outEdges->push_back(outEdge);
-}
-
-void Vertex::addTarget(std::string targetVar, Edge::EdgeType type)
-{
-	Vertex * targetVertex = new Vertex(targetVar);
-	Edge * outEdge = new Edge(targetVertex, type);
-	this->outEdges->push_back(outEdge);
-}
-
-// given another vertex, this method copies every edge outgoing from the other vertex
-// and adds to this one
-void Vertex::addTargetsOfOther(Vertex * otherVertex)
-{
-	std::vector<Edge*>  copyEdges = *(otherVertex->getOutEdges());
-	for (int i = 0; i < copyEdges.size(); i++)
-	{
-		Edge* edgeToCopy = copyEdges[i];
-		this->addTarget(edgeToCopy->getTarget(), edgeToCopy->getType());
-
-	}
-}
-
-std::string Vertex::getFirstLabel()
-{
-	return (*variables)[0];
-}
-
-std::vector<Edge *> * Vertex::getOutEdges()
-{
-	return outEdges;
-}
 /////////////////    Graph Class    ////////////////////////
 
 
@@ -95,10 +18,10 @@ Graph::Graph(std::map<std::string, int> * categoryMap)
 // to create a new vertex which is the source. Finds the vertex corresponding
 // to the input target label and attaches the new source vertex to it.
 // Vertex is added to the graph.
-void Graph::createVertex(std::string sourceVar, std::string targetVar, Edge::EdgeType type)
+void Graph::createVertex(std::string sourceVar, std::string targetVar)
 {
 	Vertex * targetVertex = (*vertexMap)[targetVar];
-	Vertex * newVertex = new Vertex(sourceVar, targetVertex, type);
+	Vertex * newVertex = new Vertex(sourceVar, targetVertex);
 	(*vertexMap)[sourceVar] = newVertex;
 	vertices->push_back(newVertex);
 
@@ -117,12 +40,12 @@ Vertex * Graph::createVertex(std::string vertexLabel)
 }
 
 
-void Graph::createVertices(std::string sourceVar, std::string targetVar, Edge::EdgeType type)
+void Graph::createVertices(std::string sourceVar, std::string targetVar)
 {
 	Vertex * targetVertex = new Vertex(targetVar);
 	(*vertexMap)[targetVar] = targetVertex;
 
-	Vertex * sourceVertex = new Vertex(sourceVar, targetVertex, type);
+	Vertex * sourceVertex = new Vertex(sourceVar, targetVertex);
 	(*vertexMap)[sourceVar] = sourceVertex;
 
 	vertices->push_back(sourceVertex);
@@ -133,7 +56,7 @@ void Graph::createVertices(std::string sourceVar, std::string targetVar, Edge::E
 
 // given labels corresponding to vertices, this method adds an edge from the source
 // to the target
-bool Graph::createEdge(std::string sourceVar, std::string targetVar, Edge::EdgeType type)
+bool Graph::createEdge(std::string sourceVar, std::string targetVar)
 {
 	Vertex * sourceVertex = (*vertexMap)[sourceVar];
 	Vertex * targetVertex = (*vertexMap)[targetVar];
@@ -143,7 +66,7 @@ bool Graph::createEdge(std::string sourceVar, std::string targetVar, Edge::EdgeT
 		//Throw error
 	}
 
-	sourceVertex->addTarget(targetVertex, Edge::MAY);
+	sourceVertex->addTarget(targetVertex);
 	return true;
 
 }
@@ -169,7 +92,7 @@ bool Graph::cloneVertex(std::string newLabel, std::string oldLabel)
 	for(i = 0; i < oldOutEdges.size(); i++)
 	{
 		Edge currentEdge = *(oldOutEdges[i]);
-		newVertex->addTarget(currentEdge.getTarget(), currentEdge.getType());
+		newVertex->addTarget(currentEdge.getTarget());
 	}
 	return true;
 }
@@ -264,7 +187,7 @@ void Graph::fullConnectSets(std::vector<Edge*> * E1, std::vector<Edge*> * E2)
 		{
 			Edge * currentTargetEdge = targetEdges[j];
 			Vertex * currentTargetVertex = currentTargetEdge->getTarget();
-			currentSourceVertex->addTarget(currentTargetVertex, currentTargetEdge->getType());
+			currentSourceVertex->addTarget(currentTargetVertex);
 		}
 	}
 
