@@ -113,6 +113,8 @@ public:
 	// creates a dot file of the graph for visual inspection
 	void createDotFile(std::string fileName);
 
+	void unionizeVertices(std::string a, std::string b);
+
 	//default constructor. Makes an empty graph
 	Graph(std::map<std::string, int> * categoryMap);
 
