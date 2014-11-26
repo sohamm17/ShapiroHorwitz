@@ -83,10 +83,11 @@ std::vector<Edge *> * Vertex::getOutEdges()
 /////////////////    Graph Class    ////////////////////////
 
 
-Graph::Graph()
+Graph::Graph(std::map<std::string, int> * categoryMap)
 {
 	vertices = new std::vector<Vertex*>();
 	vertexMap = new std::map<std::string, Vertex*>;
+	this->categoryMap = categoryMap;
 }
 
 

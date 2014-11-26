@@ -73,6 +73,7 @@ class Graph {
 private:
 	std::vector<Vertex*> * vertices;
 	std::map<std::string, Vertex*> * vertexMap;
+	std::map<std::string, int> * categoryMap;
 
 public:
 	// to create a new vertex which is the source. Finds the vertex corresponding
@@ -113,7 +114,7 @@ public:
 	void createDotFile(std::string fileName);
 
 	//default constructor. Makes an empty graph
-	Graph();
+	Graph(std::map<std::string, int> * categoryMap);
 
 	// getter method
 	std::vector<Vertex*> * getVertices() { return vertices;}
