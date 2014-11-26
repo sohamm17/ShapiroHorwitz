@@ -28,6 +28,7 @@
 #include "llvm/Support/InstIterator.h"
 #include "GraphClasses.h"
 #include "Categorize.h"
+//#include "Unionize.h"
 #include <string>
 #include <stdio.h>
 
@@ -39,7 +40,7 @@ namespace {
 // Hello - The first implementation, without getAnalysisUsage.
 struct FreePlacement : public FunctionPass {
 	static char ID; // Pass identification, replacement for typeid
-	Graph pointsToGraph;
+	std::vector< std::map<std::string, int> > categoryValueMap;
 	FreePlacement() : FunctionPass(ID) {}
 
 	virtual void getAnalysisUsage(AnalysisUsage &AU) const
@@ -105,17 +106,18 @@ struct FreePlacement : public FunctionPass {
 
 
 		  llvm::shapiro::testTemplate<std::string> test;
-		  llvm::shapiro::Categorize<Value *> categories(Pointers, 4);
+		  llvm::shapiro::Categorize<Value *> categories(Pointers, k);
+
 		  //errs() << "Back to LLVM after constructor";
 		  int i;
 		  for(i = 0, errs() << "Started loop"; i < categories.getNumberOfRuns(); i++)
 		  {
-			  errs() << "\nRun :" << i + 1 << "\n";
 			  int j;
+			  std::map<std::string, int> categoryValueMapPerRun;
 			  for(j = 0; j < categories.getNumberOfCategories(); j++)
 			  {
-				  errs() << j << ": [";
 				  std::vector<Value *> category = categories.getCategory(j, i);
+				  std::vector<std::string> categoryString;
 				  int k;
 				  for(k = 0; k < (int)category.size(); k++)
 				  {
@@ -124,10 +126,22 @@ struct FreePlacement : public FunctionPass {
 						  raw_string_ostream os1(o1);
 						  WriteAsOperand(os1, (category[k]), true, F.getParent());
 					  }
-					  errs() << o1 << " ";
+					  categoryValueMapPerRun[o1] = j;
 				  }
-				  errs() << "]\n";
 			  }
+			  categoryValueMap.push_back(categoryValueMapPerRun);
+		  }
+
+		  for(i = 0; i < categoryValueMap.size(); i++)
+		  {
+			  errs() << "\nRun " << i + 1 << ":\n";
+			  std::map<std::string, int> currentMap = categoryValueMap[i];
+			  std::map<std::string, int>::iterator currentMapIterator = currentMap.begin();
+			  for(;currentMapIterator != currentMap.end(); currentMapIterator++)
+			  {
+				  errs() << currentMapIterator->first << "->" << currentMapIterator->second << "\n";
+			  }
+			  //for()
 		  }
 	}
 
@@ -139,6 +153,9 @@ struct FreePlacement : public FunctionPass {
 		std::vector<CallInst*> Frees;
 
 		int StackCounter = 1, HeapCounter = 1;
+
+		Graph pointsToGraph(&categoryValueMap[0]);
+		getPointersCategorized(F, 4);
 
 		// Funtion iterator returns an iterator which iterates through the basic block
 		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
@@ -154,6 +171,7 @@ struct FreePlacement : public FunctionPass {
 						  WriteAsOperand(os1, AI, true, F.getParent());
 						  WriteAsOperand(os2, AI -> getOperand(0), true, F.getParent());
 					}
+					pointsToGraph.loadConnect(o2, o1);
 					//WriteAsOperand(errs(), AI->getOperand(0), true, F.getParent());
 					//errs() << o1 << "\t" << o2 << "\n";
 					//errs() << "\n\n";
@@ -172,7 +190,7 @@ struct FreePlacement : public FunctionPass {
 						errs() << "Operand1:" << o1 << ":" << *AI->getOperand(0)->getType();
 						errs() << "\tOperand2:" << o2 << ":" << *AI->getOperand(1)->getType();
 						errs() << "\n\n";
-						//pointsToGraph.storeConnect(o2, o1);
+						pointsToGraph.storeConnect(o2, o1);
 					}
 				}
 				else if(AllocaInst *AI = dyn_cast<AllocaInst>(I))
@@ -203,7 +221,11 @@ struct FreePlacement : public FunctionPass {
 					if(!pointsToGraph.cloneVertex(o1, o2))
 						errs() << "BitCast: Clonning problem:\t" << o2 << "\t" << o1 << "\n";
 					else
+					{
+//						Unionize<std::string> myUnion(pointsToGraph.getVertexAtLabel(o1),
+//								pointsToGraph.getVertexAtLabel(o2), categoriesLastRun);
 						errs() << "BitCast: Clonning happened:\t" << o2 << "\t" << o1 << "\n";
+					}
 					//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
 				}
 				else if(CallInst *AI = dyn_cast<CallInst>(I))
@@ -224,9 +246,6 @@ struct FreePlacement : public FunctionPass {
 		}
 
 		pointsToGraph.createDotFile("pointsToGraph.dot");
-
-		getPointersCategorized(F, 2);
-
 
 //		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
 //		{
