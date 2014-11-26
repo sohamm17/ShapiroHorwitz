@@ -35,6 +35,54 @@ Vertex::Vertex(std::string initialVariable, Vertex* initialTarget)
 	this->addTarget(initialTarget);
 }
 
+Vertex::~Vertex()
+{
+	int i;
+	for(i = 0; i < (int) inEdges->size(); i++)
+	{
+		Vertex * source = (*inEdges)[i]->getSource();
+		source->removeInEdge((*inEdges)[i]);
+		delete[] (*inEdges)[i];
+	}
+
+	for(i = 0; i < (int) outEdges->size(); i++)
+	{
+		Vertex * target = (*outEdges)[i]->getTarget();
+		target->removeOutEdge((*outEdges)[i]);
+		delete[] (*outEdges)[i];
+	}
+
+	delete[] inEdges;
+	delete[] outEdges;
+	delete[] variables;
+}
+
+void Vertex::removeInEdge(Edge * edge)
+{
+	std::vector<Edge *>::iterator inEdgesIterator = inEdges->begin();
+	int i = 0;
+	for(; inEdgesIterator != inEdges->end(); inEdgesIterator++, i++)
+	{
+		if(*inEdgesIterator == edge)
+			break;
+	}
+
+	inEdges->erase(inEdges->begin() + i);
+}
+
+void Vertex::removeOutEdge(Edge * edge)
+{
+	std::vector<Edge *>::iterator inEdgesIterator = outEdges->begin();
+	int i = 0;
+	for(; inEdgesIterator != outEdges->end(); inEdgesIterator++, i++)
+	{
+		if(*inEdgesIterator == edge)
+			break;
+	}
+
+	outEdges->erase(outEdges->begin() + i);
+}
+
 void Vertex::addTarget(Vertex* targetVertex)
 {
 	Edge * outEdge = new Edge(this, targetVertex);
@@ -55,7 +103,7 @@ void Vertex::addTarget(std::string targetVar)
 void Vertex::addTargetsOfOther(Vertex * otherVertex)
 {
 	std::vector<Edge*> copyEdges = *(otherVertex->getOutEdges());
-	for (int i = 0; i < copyEdges.size(); i++)
+	for (int i = 0; i < (int) copyEdges.size(); i++)
 	{
 		Edge* edgeToCopy = copyEdges[i];
 		this->addTarget(edgeToCopy->getTarget());

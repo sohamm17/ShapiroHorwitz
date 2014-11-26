@@ -28,6 +28,11 @@ public:
 	// make a vertex with an outgoing edge to a target vertex
 	Vertex(std::string initialVariable, Vertex* initialTarget);
 
+	~Vertex();
+
+	void removeInEdge(Edge * edge);
+
+	void removeOutEdge(Edge * edge);
 
 	// add an edge to a pre-constructed target Vertex
 	void addTarget(Vertex* targetVertex);
