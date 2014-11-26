@@ -25,6 +25,7 @@ public:
 
 private:
 	Vertex * target;
+	Vertex * source;
 	EdgeType type;
 
 	Edge(Vertex * target, EdgeType type);
