@@ -72,7 +72,18 @@ std::vector<Edge *> * Vertex::getOutEdges()
 	return outEdges;
 }
 
-std::vector<Edge *> * Vertex::getOutEdges()
+std::vector<Edge *> * Vertex::getInEdges()
 {
 	return inEdges;
+}
+
+std::vector<Vertex *> * Vertex::getOutVertices()
+{
+	std::vector<Vertex *> * outVertices = new std::vector<Vertex *>();
+	std::vector<Edge *>::iterator outIterator = outEdges->begin();
+	for(; outIterator != outEdges->end(); outIterator++)
+	{
+		outVertices->push_back((*outIterator)->getTarget());
+	}
+	return outVertices;
 }

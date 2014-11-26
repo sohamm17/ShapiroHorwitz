@@ -8,7 +8,6 @@
 #ifndef LLVM_3_4_LIB_TRANSFORMS_FREEPLACEMENT_CATEGORIZE_H_
 #define LLVM_3_4_LIB_TRANSFORMS_FREEPLACEMENT_CATEGORIZE_H_
 
-//#include "llvm/ADT/SetVector.h"
 #include <iostream>
 #include <map>
 #include <vector>
