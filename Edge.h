@@ -24,6 +24,7 @@ public:
 //	EdgeType getType();
 
 	Vertex * getTarget();
+	Vertex * getSource();
 
 private:
 	Vertex * target;
@@ -31,6 +32,8 @@ private:
 //	EdgeType type;
 
 	Edge(Vertex * target);
+
+	Edge(Vertex * source, Vertex * target);
 
 };
 

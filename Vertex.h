@@ -43,6 +43,8 @@ public:
 	std::string getFirstLabel();
 
 	std::vector<Edge *> * getOutEdges();
+
+	std::vector<Edge *> * getInEdges();
 };
 
 #endif /* LLVM_3_4_LIB_TRANSFORMS_FREEPLACEMENT_VERTEX_H_ */

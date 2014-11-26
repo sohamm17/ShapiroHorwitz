@@ -12,6 +12,7 @@
 Vertex::Vertex(std::string initialVariable)
 {
 	this->outEdges = new std::vector<Edge*>();
+	this->inEdges = new std::vector<Edge*>();
 	this->variables = new std::vector<std::string>();
 	this->variables->push_back(initialVariable);
 }
@@ -20,37 +21,44 @@ Vertex::Vertex(std::string initialVariable)
 Vertex::Vertex(std::string initialVariable, Vertex* initialTarget)
 {
 	this->outEdges = new std::vector<Edge*>();
-	Edge * newEdge = new Edge(initialTarget);
-	this->outEdges->push_back(newEdge);
+	this->inEdges = new std::vector<Edge*>();
+//	Edge * newEdge = new Edge(this, initialTarget);
+//	this->outEdges->push_back(newEdge);
+//
+//	//adding this edge to the in-edge list of initialTarget vertex
+//	std::vector<Edge *> * initialTargetInEdges = initialTarget->getInEdges();
+//	initialTargetInEdges->push_back(newEdge);
+
 	this->variables = new std::vector<std::string>();
 	this->variables->push_back(initialVariable);
 
+	this->addTarget(initialTarget);
 }
-
 
 void Vertex::addTarget(Vertex* targetVertex)
 {
-	Edge * outEdge = new Edge(targetVertex);
+	Edge * outEdge = new Edge(this, targetVertex);
 	this->outEdges->push_back(outEdge);
+	targetVertex->getInEdges()->push_back(outEdge);
 }
 
 void Vertex::addTarget(std::string targetVar)
 {
 	Vertex * targetVertex = new Vertex(targetVar);
-	Edge * outEdge = new Edge(targetVertex);
-	this->outEdges->push_back(outEdge);
+	this->addTarget(targetVertex);
+//	Edge * outEdge = new Edge(targetVertex);
+//	this->outEdges->push_back(outEdge);
 }
 
 // given another vertex, this method copies every edge outgoing from the other vertex
 // and adds to this one
 void Vertex::addTargetsOfOther(Vertex * otherVertex)
 {
-	std::vector<Edge*>  copyEdges = *(otherVertex->getOutEdges());
+	std::vector<Edge*> copyEdges = *(otherVertex->getOutEdges());
 	for (int i = 0; i < copyEdges.size(); i++)
 	{
 		Edge* edgeToCopy = copyEdges[i];
 		this->addTarget(edgeToCopy->getTarget());
-
 	}
 }
 
@@ -62,4 +70,9 @@ std::string Vertex::getFirstLabel()
 std::vector<Edge *> * Vertex::getOutEdges()
 {
 	return outEdges;
+}
+
+std::vector<Edge *> * Vertex::getOutEdges()
+{
+	return inEdges;
 }

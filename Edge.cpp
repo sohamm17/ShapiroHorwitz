@@ -17,6 +17,12 @@ Edge::Edge(Vertex * target)
 
 }
 
+Edge::Edge(Vertex * source, Vertex * target)
+{
+	this->source = source;
+	this->target = target;
+}
+
 //Edge::EdgeType Edge::getType()
 //{
 //	return type;
@@ -25,4 +31,9 @@ Edge::Edge(Vertex * target)
 Vertex* Edge::getTarget()
 {
 	return target;
+}
+
+Vertex* Edge::getSource()
+{
+	return source;
 }
