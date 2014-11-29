@@ -129,32 +129,6 @@ class Categorize
 		}
 };
 
-
-
-template <typename T>
-class testTemplate
-{
-private:
-	int a;
-public:
-	testTemplate()
-	{
-		a = 0;
-		//trying to do something
-	}
-};
-
-class testNoTemplate
-{
-private:
-	int a;
-public:
-	testNoTemplate()
-	{
-
-	}
-};
-
 }//shapiro
 }//llvm
 #endif /* LLVM_3_4_LIB_TRANSFORMS_FREEPLACEMENT_CATEGORIZE_H_ */

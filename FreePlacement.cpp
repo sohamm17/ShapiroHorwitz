@@ -105,7 +105,6 @@ struct FreePlacement : public FunctionPass {
 		  }
 
 
-		  llvm::shapiro::testTemplate<std::string> test;
 		  llvm::shapiro::Categorize<Value *> categories(Pointers, k);
 
 		  //errs() << "Back to LLVM after constructor";
@@ -132,7 +131,7 @@ struct FreePlacement : public FunctionPass {
 			  categoryValueMap.push_back(categoryValueMapPerRun);
 		  }
 
-		  for(i = 0; i < categoryValueMap.size(); i++)
+		  for(i = 0; i < (int)categoryValueMap.size(); i++)
 		  {
 			  errs() << "\nRun " << i + 1 << ":\n";
 			  std::map<std::string, int> currentMap = categoryValueMap[i];

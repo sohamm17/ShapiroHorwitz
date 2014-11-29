@@ -52,6 +52,10 @@ public:
 	std::vector<Edge *> * getInEdges();
 
 	std::vector<Vertex *> *getOutVertices();
+
+	std::vector<std::string> * getLabels();
+
+	void takeLabels(Vertex * other);
 };
 
 #endif /* LLVM_3_4_LIB_TRANSFORMS_FREEPLACEMENT_VERTEX_H_ */

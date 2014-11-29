@@ -135,3 +135,18 @@ std::vector<Vertex *> * Vertex::getOutVertices()
 	}
 	return outVertices;
 }
+
+std::vector<std::string> * Vertex::getLabels()
+{
+	return variables;
+}
+
+void Vertex::takeLabels(Vertex * other)
+{
+	std::vector<std::string> * otherVariables = other->getLabels();
+	std::vector<std::string>::iterator labelIterator = otherVariables->begin();
+	for(; labelIterator != otherVariables->end(); labelIterator++)
+	{
+		this->variables->push_back(*labelIterator);
+	}
+}
