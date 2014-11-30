@@ -1,7 +1,7 @@
 // this file is used to test the GraphClasses methods
 
 #include "GraphClasses.h"
-
+#include <iostream>
 
 int testVertex()
 {
@@ -35,8 +35,9 @@ int testGraph()
 	testG->createVertices("A4", "A5");
 
 	testG->createVertex("A6");
-	testG->createEdge("A4", "A6");
 
+	testG->createEdge("A4", "A6");
+/*
 
 
 	// given two labels correspondng to vertices A and B, this method adds edges from all children of A
@@ -50,38 +51,32 @@ int testGraph()
 	testG->loadConnect("A2", "A9");
 
 	testG->createDotFile("A.dot");
+
+	*/
 	return 0;
 }
-/*
-class Graph
 
-	// given two labels correspondng to existing vertex A and to-be-constructed vetex B,
-	// this method creates B with outgoing edges copied from all children of A
-	// Called to process "load" calls in LLVM
-	void loadConnect(std::string a, std::string b);
+int testMaps()
+{
+	std::map<char,int> mymap;
+	std::map<char,int>::iterator it;
+	mymap['a'] = 5;
+	mymap['d'] = 2;
+	mymap['a'] = 7;
 
+	for (it=mymap.begin(); it!=mymap.end(); ++it)
+	{
+		std::cout << it->first << " => " << it->second << '\n';
+	}
+	return 0;
 
-	// getter method
-	std::vector<Vertex*> * getVertices() { return vertices;}
-
-
-private:
-	// given a label, returns the vertex which the label corresponds to
-	Vertex * getVertexAtLabel(std::string label);
-
-	// given two vectors of edge pointers E1 and E2, this method adds edges from the target of edges in E1
-	// to the target of all edges in E2
-	void fullConnectSets(std::vector<Edge*> * E1, std::vector<Edge*> * E2);
-};
-
-
-*/
+}
 
 int main()
 {
-	testVertex();
+	//testVertex();
 	testGraph();
-
+	//testMaps();
 
 	return 0;
 }

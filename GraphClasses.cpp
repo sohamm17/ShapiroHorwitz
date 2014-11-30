@@ -40,6 +40,39 @@ Vertex * Graph::createVertex(std::string vertexLabel)
 }
 
 
+void Graph::removeVertex(std::string vertexLabel)
+{
+	Vertex * thisVertex = (*vertexMap)[vertexLabel];
+	if (thisVertex == NULL)
+	{
+		return;
+	}
+
+	else
+	{
+		removeVertex(thisVertex);
+		return;
+	}
+
+}
+
+void Graph::removeVertex(Vertex * thisVertex)
+{
+	int i;
+	for (i = 0; i < vertices->size(); i++)
+	{
+		if ((*vertices)[i] == thisVertex)
+		{
+			// we found the vertex
+			break;
+		}
+	}
+	vertices->erase(vertices->begin() + i);
+	delete[] thisVertex;
+}
+
+
+
 void Graph::createVertices(std::string sourceVar, std::string targetVar)
 {
 	Vertex * targetVertex = new Vertex(targetVar);
@@ -66,8 +99,27 @@ bool Graph::createEdge(std::string sourceVar, std::string targetVar)
 		//Throw error
 	}
 
-	sourceVertex->addTarget(targetVertex);
+	//sourceVertex->addTarget(targetVertex);
+	createEdge(sourceVertex, targetVertex);
 	return true;
+
+}
+
+// given vertices, this method adds an edge from the source
+// to the target
+void Graph::createEdge(Vertex * sourceVertex, Vertex * targetVertex)
+{
+	if (unionize(sourceVertex, targetVertex))
+	{
+		// the target vertex was merged with one of the sources's children
+		return;
+	}
+	else
+	{
+		// no merge happened so add the target as normal
+		sourceVertex->addTarget(targetVertex);
+		return;
+	}
 
 }
 
@@ -76,7 +128,7 @@ bool Graph::createEdge(std::string sourceVar, std::string targetVar)
 // vertex with the same outgoing edges as the old vertex. Adds to graph
 bool Graph::cloneVertex(std::string newLabel, std::string oldLabel)
 {
-	//TODO
+
 	Vertex * oldVertex = (*vertexMap)[oldLabel];
 	if(oldVertex == NULL)
 	{
@@ -112,6 +164,32 @@ void Graph::storeConnect(std::string a, std::string b){
 }
 
 
+// given another vertex, this method copies every edge outgoing from the other vertex
+// and adds to this one
+void Graph::addTargetsOfOther(Vertex * thisVertex, Vertex * otherVertex)
+{
+	std::vector<Edge*>  copyEdges = *(otherVertex->getOutEdges());
+	for (int i = 0; i < copyEdges.size(); i++)
+	{
+		Edge* edgeToCopy = copyEdges[i];
+		//thisVertex->addTarget(edgeToCopy->getTarget());
+		createEdge(thisVertex, edgeToCopy->getTarget());
+	}
+}
+
+// given another vertex, this method copies every edge incoming to the other vertex
+// and adds to this one
+void Graph::addSourcesOfOther(Vertex * thisVertex, Vertex * otherVertex)
+{
+	std::vector<Edge*>  copyEdges = *(otherVertex->getInEdges());
+	for (int i = 0; i < copyEdges.size(); i++)
+	{
+		Edge* edgeToCopy = copyEdges[i];
+		//thisVertex->addTarget(edgeToCopy->getTarget());
+		createEdge(edgeToCopy->getSource(), thisVertex);
+	}
+}
+
 // given two labels correspondng to existing vertex A and to-be-constructed vetex B,
 // this method creates B with outgoing edges copied from all children of A
 // Called to process "load" calls in LLVM
@@ -124,7 +202,7 @@ void Graph::loadConnect(std::string a, std::string b)
 	{
 		Edge * currentEdge = edges[i];
 		Vertex * currentVertex = currentEdge->getTarget();
-		B->addTargetsOfOther(currentVertex);
+		addTargetsOfOther(B, currentVertex);
 	}
 }
 
@@ -187,10 +265,84 @@ void Graph::fullConnectSets(std::vector<Edge*> * E1, std::vector<Edge*> * E2)
 		{
 			Edge * currentTargetEdge = targetEdges[j];
 			Vertex * currentTargetVertex = currentTargetEdge->getTarget();
-			currentSourceVertex->addTarget(currentTargetVertex);
+			//currentSourceVertex->addTarget(currentTargetVertex);
+			createEdge(currentSourceVertex, currentTargetVertex);
+
 		}
 	}
 
 }
+
+// given a source vertex and a target vertex ,
+// this method checks to see if the target needs to be unionized with any of the source's children (at most one),
+// and if so it merges them into the other vertex. All vertices that point to the target vertex will have their target
+// updated, and the target vertex is removed from the graph
+// return true if a merge hapened, and false if no merge occurred
+bool Graph::unionize(Vertex * source, Vertex * target)
+{
+	//TODO:: this is currently segfaulting!!
+	std::vector<Vertex *> children = *(source->getOutVertices());
+	for (int i = 0; i < children.size(); i++)
+	{
+		Vertex * currentChild = children[i];
+		if (isSameCategory(currentChild, target))
+		{
+			//merge(currentChild, target);
+			return true; // only possible to merge with one child
+		}
+
+	}
+
+	return false;
+}
+
+bool Graph::isSameCategory(Vertex * A, Vertex * B)
+{
+	// we only need the first label from the vertices since every label of a given
+	// vertex must be in the same category
+	std::string labelA = A->getFirstLabel();
+	std::string labelB = B->getFirstLabel();
+
+	int categoryA = (*categoryMap)[labelA];
+	int categoryB = (*categoryMap)[labelB];
+
+	return (categoryA == categoryB);
+
+	return true;
+
+}
+
+// given vertices A and B, this method merges vertex B into vertex A. Vertex A will now have all
+// incoming and outgoing edges that B had. B is removed from the graph.
+void Graph::merge(Vertex * A, Vertex* B)
+
+{
+	addTargetsOfOther(A, B);
+	addSourcesOfOther(A,B);
+	takeLabels(A,B);
+	removeVertex(B);
+	return;
+
+}
+
+// given vertixes A and B, this method takes all the labels from B and adds them to the list of A's labels.
+// it also updates the vertexMap with this new information
+void Graph::takeLabels(Vertex * A, Vertex * B)
+{
+	std::vector<std::string> * labels = B->getLabels();
+	std::vector<std::string>::iterator labelIterator = labels->begin();
+	for(; labelIterator != labels->end(); labelIterator++)
+	{
+		std::string currentLabel = (*labelIterator);
+		(*vertexMap)[currentLabel] = A; // update the map for each label from B
+
+	}
+
+	A->takeLabels(B);
+
+	return;
+}
+
+
 
 
