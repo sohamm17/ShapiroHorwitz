@@ -322,8 +322,8 @@ bool Graph::isSameCategory(Vertex * A, Vertex * B)
 	std::string labelA = A->getFirstLabel();
 	std::string labelB = B->getFirstLabel();
 
-	int categoryA = (*categoryMap)[labelA];
-	int categoryB = (*categoryMap)[labelB];
+	int categoryA = categoryMap->at(labelA);
+	int categoryB = categoryMap->at(labelB);
 
 	return (categoryA == categoryB);
 
