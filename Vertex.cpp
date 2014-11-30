@@ -79,20 +79,22 @@ void Vertex::removeInEdge(Edge * edge)
 		}
 	}
 
-	inEdges->erase(inEdges->begin() + i);
+	if(i < inEdges->size())
+		inEdges->erase(inEdges->begin() + i);
 }
 
 void Vertex::removeOutEdge(Edge * edge)
 {
-	std::vector<Edge *>::iterator inEdgesIterator = outEdges->begin();
+	std::vector<Edge *>::iterator outEdgesIterator = outEdges->begin();
 	int i = 0;
-	for(; inEdgesIterator != outEdges->end(); inEdgesIterator++, i++)
+	for(; outEdgesIterator != outEdges->end(); outEdgesIterator++, i++)
 	{
-		if(*inEdgesIterator == edge)
+		if(*outEdgesIterator == edge)
 			break;
 	}
 
-	outEdges->erase(outEdges->begin() + i);
+	if(i < outEdges->size())
+		outEdges->erase(outEdges->begin() + i);
 }
 
 void Vertex::addTarget(Vertex* targetVertex)
