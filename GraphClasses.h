@@ -80,7 +80,7 @@ public:
 	std::vector<Vertex*> * getVertices() { return vertices;}
 
 
-private:
+//private:
 	// given a label, returns the vertex which the label corresponds to
 	Vertex * getVertexAtLabel(std::string label);
 

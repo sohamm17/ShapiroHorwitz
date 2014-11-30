@@ -1,5 +1,5 @@
 #include "GraphClasses.h"
-#include "llvm/Support/raw_ostream.h"
+//#include "llvm/Support/raw_ostream.h"
 #include <fstream>
 #include <iostream>
 
@@ -59,6 +59,7 @@ void Graph::removeVertex(std::string vertexLabel)
 
 void Graph::removeVertex(Vertex * thisVertex)
 {
+
 	int i;
 	for (i = 0; i < vertices->size(); i++)
 	{
@@ -69,7 +70,7 @@ void Graph::removeVertex(Vertex * thisVertex)
 		}
 	}
 	vertices->erase(vertices->begin() + i);
-	delete[] thisVertex;
+	delete thisVertex;
 }
 
 
@@ -182,12 +183,16 @@ void Graph::addTargetsOfOther(Vertex * thisVertex, Vertex * otherVertex)
 // and adds to this one
 void Graph::addSourcesOfOther(Vertex * thisVertex, Vertex * otherVertex)
 {
+	std::cout << "thisvertex " << thisVertex->toString() << "\n";
+	std::cout << "otherVertex " << otherVertex->toString() << "\n";
+
 	std::vector<Edge*>  copyEdges = *(otherVertex->getInEdges());
 	for (int i = 0; i < copyEdges.size(); i++)
 	{
 		Edge* edgeToCopy = copyEdges[i];
 		//thisVertex->addTarget(edgeToCopy->getTarget());
-		createEdge(edgeToCopy->getSource(), thisVertex);
+		edgeToCopy->getSource()->addTarget(thisVertex);
+		//createEdge(edgeToCopy->getSource(), thisVertex);
 	}
 }
 
@@ -306,7 +311,7 @@ bool Graph::unionize(Vertex * source, Vertex * target)
 		Vertex * currentChild = children[i];
 		if (isSameCategory(currentChild, target))
 		{
-			//merge(currentChild, target);
+			merge(currentChild, target);
 			return true; // only possible to merge with one child
 		}
 
@@ -322,12 +327,16 @@ bool Graph::isSameCategory(Vertex * A, Vertex * B)
 	std::string labelA = A->getFirstLabel();
 	std::string labelB = B->getFirstLabel();
 
+	if (categoryMap == NULL)
+	{
+		// default behaviour is steensgard (all in same category)
+		return true;
+	}
 	int categoryA = categoryMap->at(labelA);
 	int categoryB = categoryMap->at(labelB);
 
 	return (categoryA == categoryB);
 
-	return true;
 
 }
 

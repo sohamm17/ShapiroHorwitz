@@ -8,6 +8,7 @@
 #include "Vertex.h"
 #include <sstream>
 #include <string.h>
+#include <iostream>
 /////////////////    Vertex Class   //////////////////////
 
 
@@ -40,23 +41,33 @@ Vertex::Vertex(std::string initialVariable, Vertex* initialTarget)
 Vertex::~Vertex()
 {
 	int i;
+	std::cout << "suck my dick\n";
+	if (inEdges == NULL)
+	{
+		std::cout << "inedges null\n";
+
+	}
+	//std::cout << inEdges->size() << "\n";
+
 	for(i = 0; i < (int) inEdges->size(); i++)
 	{
+		std::cout << "fuck-in \n"; //<< (*inEdges)[i]->getTarget()->toString() << "\n";
 		Vertex * source = (*inEdges)[i]->getSource();
 		source->removeOutEdge((*inEdges)[i]);
-		delete[] (*inEdges)[i];
+		delete (*inEdges)[i];
 	}
 
 	for(i = 0; i < (int) outEdges->size(); i++)
 	{
-		Vertex * target = (*outEdges)[i]->getTarget();
+		std::cout << "fuck-out\n";
+ 		Vertex * target = (*outEdges)[i]->getTarget();
 		target->removeInEdge((*outEdges)[i]);
-		delete[] (*outEdges)[i];
+		delete (*outEdges)[i];
 	}
 
-	delete[] inEdges;
-	delete[] outEdges;
-	delete[] variables;
+	delete inEdges;
+	delete outEdges;
+	delete variables;
 }
 
 void Vertex::removeInEdge(Edge * edge)
@@ -66,7 +77,10 @@ void Vertex::removeInEdge(Edge * edge)
 	for(; inEdgesIterator != inEdges->end(); inEdgesIterator++, i++)
 	{
 		if(*inEdgesIterator == edge)
+		{
+			std::cout << "i = " << i << "\n";
 			break;
+		}
 	}
 
 	if(i < inEdges->size())
