@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "llvm/ADT/SetVector.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Assembly/Writer.h"
 #include "Base.h"
 
 namespace llvm {

@@ -1,4 +1,5 @@
 #include "GraphClasses.h"
+#include "llvm/Support/raw_ostream.h"
 #include <fstream>
 #include <iostream>
 
@@ -212,6 +213,7 @@ void Graph::createDotFile(std::string fileName)
 	std::ofstream outFile;
 	outFile.open(fileName.c_str());
 
+
 	outFile << "digraph {\n";
 	outFile << "ordering=out;\nranksep=.4;\n  bgcolor=\"lightgrey\"; node [shape=box, fixedsize=false, fontsize=12, fontname=\"Helvetica-bold\", fontcolor=\"blue\"\n";
     outFile << "width=.25, height=.25, color=\"black\", fillcolor=\"white\", style=\"filled, solid, bold\"];\n";
@@ -219,20 +221,37 @@ void Graph::createDotFile(std::string fileName)
 
 	for (int i = 0; i < vertices->size(); i++)
 	{
-		Vertex currentVertex = *((*vertices)[i]);
-		std::vector<Edge*> currentEdges = *(currentVertex.getOutEdges());
-
-		for (int j = 0; j < currentEdges.size(); j++)
+//		llvm::errs() << "i = " << i << "\n";
+		Vertex* currentVertex = (*vertices)[i];
+		if(currentVertex != NULL)
 		{
-			Edge currentEdge = *(currentEdges[j]);
-			outFile << "\"" << currentVertex.getFirstLabel() << "\"" << " -> "
-					<< "\"" << currentEdge.getTarget()->getFirstLabel() << "\"" << "\n";
+			std::vector<Edge*>* currentEdges = currentVertex->getOutEdges();
 
+//			llvm::errs() << currentVertex->toString() << "\n";
+			for (int j = 0; j < (int) currentEdges->size(); j++)
+			{
+//				llvm::errs() << "j= " << j << "\n";
+				Edge* currentEdge = (*currentEdges)[j];
+				if(currentEdge != NULL)
+				{
+//					llvm::errs() << "NOT NULL\n";
+					outFile << "\"" << currentVertex->toString() << "\"" << " -> "
+						<< "\"" << currentEdge->getTarget()->toString() << "\"" << "\n";
+				}
+//				else
+//					llvm::errs() << "NULL Found\n";
+//				llvm::errs() << "I am here.\n";
+			}
 		}
+//		else
+//			llvm::errs() << "NULL vertex";
+//		llvm::errs() << "I am out of inner loop.\n";
+//		llvm::errs() << "Vertices size:" << vertices->size() << ".\n";
 	}
 
 	outFile << "}\n";
 
+//	llvm::errs() << "createDotFile\n";
 	outFile.close();
 
 

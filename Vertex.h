@@ -51,11 +51,14 @@ public:
 
 	std::vector<Edge *> * getInEdges();
 
+	//Get all the vertices pointed by this vertex i.e the vertices the outedges point to
 	std::vector<Vertex *> *getOutVertices();
 
 	std::vector<std::string> * getLabels();
 
 	void takeLabels(Vertex * other);
+
+	std::string toString();
 };
 
 #endif /* LLVM_3_4_LIB_TRANSFORMS_FREEPLACEMENT_VERTEX_H_ */

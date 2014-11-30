@@ -6,6 +6,8 @@
  */
 
 #include "Vertex.h"
+#include <sstream>
+#include <string.h>
 /////////////////    Vertex Class   //////////////////////
 
 
@@ -149,4 +151,17 @@ void Vertex::takeLabels(Vertex * other)
 	{
 		this->variables->push_back(*labelIterator);
 	}
+}
+
+std::string Vertex::toString()
+{
+	std::vector<std::string>::iterator labelsIterator = getLabels()->begin();
+	std::stringstream labelsString;
+	for(; labelsIterator != getLabels()->end(); labelsIterator++)
+	{
+		std::string label = *labelsIterator;
+		labelsString << label << ",";
+	}
+	std::string val = labelsString.str();
+	return val.substr(0, val.size()-1);
 }

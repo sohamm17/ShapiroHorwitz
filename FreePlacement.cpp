@@ -26,8 +26,9 @@
 #include "llvm/ADT/SetVector.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/Support/InstIterator.h"
-#include "GraphClasses.h"
+//#include "GraphClasses.h"
 #include "Categorize.h"
+#include "ShapiroHorwitz.h"
 //#include "Unionize.h"
 #include <string>
 #include <stdio.h>
@@ -105,11 +106,11 @@ struct FreePlacement : public FunctionPass {
 		  }
 
 
-		  llvm::shapiro::Categorize<Value *> categories(Pointers, k);
+		  //llvm::shapiro::Categorize<Value *> categories(Pointers, k);
 
 		  //errs() << "Back to LLVM after constructor";
 		  int i;
-		  for(i = 0, errs() << "Started loop"; i < categories.getNumberOfRuns(); i++)
+		  /*for(i = 0, errs() << "Started loop"; i < categories.getNumberOfRuns(); i++)
 		  {
 			  int j;
 			  std::map<std::string, int> categoryValueMapPerRun;
@@ -141,7 +142,10 @@ struct FreePlacement : public FunctionPass {
 				  errs() << currentMapIterator->first << "->" << currentMapIterator->second << "\n";
 			  }
 			  //for()
-		  }
+		  }*/
+
+		  ShapiroHorwitz::ShapiroHorwitz myShapiro(Pointers, 2, F, 1);
+		  myShapiro.printPointsToSet();
 	}
 
 	virtual bool runOnFunction(Function &F)
@@ -153,11 +157,11 @@ struct FreePlacement : public FunctionPass {
 
 		int StackCounter = 1, HeapCounter = 1;
 
-		Graph pointsToGraph(&categoryValueMap[0]);
+		//Graph pointsToGraph(&categoryValueMap[0]);
 		getPointersCategorized(F, 4);
 
 		// Funtion iterator returns an iterator which iterates through the basic block
-		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
+		/*for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
 		{
 			for (BasicBlock::iterator I = BI->begin(), E = BI->end(); I != E; ++I)
 			{
@@ -244,7 +248,7 @@ struct FreePlacement : public FunctionPass {
 			}
 		}
 
-		pointsToGraph.createDotFile("pointsToGraph.dot");
+		pointsToGraph.createDotFile("pointsToGraph.dot");*/
 
 //		for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
 //		{
