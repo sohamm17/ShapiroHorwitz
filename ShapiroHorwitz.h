@@ -70,6 +70,7 @@ private:
 		(std::vector< std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp> * > * allSets);
 
 public:
+	//k = number of categories
 	ShapiroHorwitz(llvm::SetVector<llvm::Value *> Pointers, int k, llvm::Function &F, int algo);
 	void printPointsToSet();
 };

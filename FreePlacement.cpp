@@ -144,7 +144,7 @@ struct FreePlacement : public FunctionPass {
 			  //for()
 		  }*/
 
-		  ShapiroHorwitz::ShapiroHorwitz myShapiro(Pointers, 2, F, 1);
+		  ShapiroHorwitz::ShapiroHorwitz myShapiro(Pointers, 1, F, 2);
 		  myShapiro.printPointsToSet();
 	}
 

@@ -43,14 +43,14 @@ Vertex::~Vertex()
 	for(i = 0; i < (int) inEdges->size(); i++)
 	{
 		Vertex * source = (*inEdges)[i]->getSource();
-		source->removeInEdge((*inEdges)[i]);
+		source->removeOutEdge((*inEdges)[i]);
 		delete[] (*inEdges)[i];
 	}
 
 	for(i = 0; i < (int) outEdges->size(); i++)
 	{
 		Vertex * target = (*outEdges)[i]->getTarget();
-		target->removeOutEdge((*outEdges)[i]);
+		target->removeInEdge((*outEdges)[i]);
 		delete[] (*outEdges)[i];
 	}
 

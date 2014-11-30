@@ -49,6 +49,17 @@ ShapiroHorwitz::ShapiroHorwitz(SetVector<llvm::Value *> Pointers, int k, Functio
 	  categoryValueMap.push_back(categoryValueMapPerRun);
 	}
 
+	for(i = 0; i < (int)categoryValueMap.size(); i++)
+	{
+	  errs() << "\nRun " << i + 1 << ":\n";
+	  std::map<std::string, int> currentMap = categoryValueMap[i];
+	  std::map<std::string, int>::iterator currentMapIterator = currentMap.begin();
+	  for(;currentMapIterator != currentMap.end(); currentMapIterator++)
+	  {
+		  errs() << currentMapIterator->first << "->" << currentMapIterator->second << "\n";
+	  }
+	}
+
 	int run;
 	if(algo == 1)
 		run = 1;
@@ -178,7 +189,7 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 			}
 			else if(StoreInst *AI = dyn_cast<StoreInst>(I))
 			{
-				errs() << "Store: " << *I << "\n";
+//				errs() << "Store: " << *I << "\n";
 				{
 					  raw_string_ostream os1(o1), os2(o2);
 					  WriteAsOperand(os1, AI->getOperand(0), true, F.getParent());
@@ -187,9 +198,9 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 
 				if(Type *firstOperandType = dyn_cast<PointerType>(AI->getOperand(0)->getType()))
 				{
-					errs() << "Operand1:" << o1 << ":" << *AI->getOperand(0)->getType();
-					errs() << "\tOperand2:" << o2 << ":" << *AI->getOperand(1)->getType();
-					errs() << "\n\n";
+//					errs() << "Operand1:" << o1 << ":" << *AI->getOperand(0)->getType();
+//					errs() << "\tOperand2:" << o2 << ":" << *AI->getOperand(1)->getType();
+//					errs() << "\n\n";
 					pointsToGraph->storeConnect(o2, o1);
 				}
 			}
@@ -204,7 +215,7 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 				sprintf(stackLoc, "Stack%d", StackCounter++);
 				//errs() << "Alloca: " << o1 << "\n";
 				pointsToGraph->createVertices(o1, stackLoc);
-				errs() << "Alloca: " << o1 << "\n";
+				//errs() << "Alloca: " << o1 << "\n";
 
 				//pointsToGraph.clone(o1, o2, Edge::MAY);
 				//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
@@ -219,12 +230,12 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 
 
 				if(!pointsToGraph->cloneVertex(o1, o2))
-					errs() << "BitCast: Clonning problem:\t" << o2 << "\t" << o1 << "\n";
+					;//errs() << "BitCast: Clonning problem:\t" << o2 << "\t" << o1 << "\n";
 				else
 				{
 //						Unionize<std::string> myUnion(pointsToGraph.getVertexAtLabel(o1),
 //								pointsToGraph.getVertexAtLabel(o2), categoriesLastRun);
-					errs() << "BitCast: Clonning happened:\t" << o2 << "\t" << o1 << "\n";
+					//errs() << "BitCast: Clonning happened:\t" << o2 << "\t" << o1 << "\n";
 				}
 				//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
 			}
@@ -236,7 +247,7 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 						raw_string_ostream os1(o1);
 						WriteAsOperand(os1, AI, true, F.getParent());
 					}
-					errs() << "LHS: " << o1 << "\n";
+					//errs() << "LHS: " << o1 << "\n";
 					char* heapLoc = new char[50];
 					sprintf(heapLoc, "Malloc%d", HeapCounter++);
 					pointsToGraph->createVertices(o1, heapLoc);

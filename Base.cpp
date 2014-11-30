@@ -12,7 +12,7 @@ void Base::setNewNumber(int n)
 		number.push_back(n % myBase);
 		n /= myBase;
 	}
-	while(n != 0);
+	while(n != 0 && myBase != 1);
 }
 
 Base::Base():myBase(defaultBase), decimal(0)
