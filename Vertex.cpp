@@ -41,17 +41,14 @@ Vertex::Vertex(std::string initialVariable, Vertex* initialTarget)
 Vertex::~Vertex()
 {
 	int i;
-	std::cout << "suck my dick\n";
 	if (inEdges == NULL)
 	{
 		std::cout << "inedges null\n";
 
 	}
-	//std::cout << inEdges->size() << "\n";
 
 	for(i = 0; i < (int) inEdges->size(); i++)
 	{
-		std::cout << "fuck-in \n"; //<< (*inEdges)[i]->getTarget()->toString() << "\n";
 		Vertex * source = (*inEdges)[i]->getSource();
 		source->removeOutEdge((*inEdges)[i]);
 		delete (*inEdges)[i];
@@ -59,7 +56,6 @@ Vertex::~Vertex()
 
 	for(i = 0; i < (int) outEdges->size(); i++)
 	{
-		std::cout << "fuck-out\n";
  		Vertex * target = (*outEdges)[i]->getTarget();
 		target->removeInEdge((*outEdges)[i]);
 		delete (*outEdges)[i];
@@ -78,7 +74,7 @@ void Vertex::removeInEdge(Edge * edge)
 	{
 		if(*inEdgesIterator == edge)
 		{
-			std::cout << "i = " << i << "\n";
+			//std::cout << "i = " << i << "\n";
 			break;
 		}
 	}

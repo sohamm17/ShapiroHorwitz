@@ -183,8 +183,8 @@ void Graph::addTargetsOfOther(Vertex * thisVertex, Vertex * otherVertex)
 // and adds to this one
 void Graph::addSourcesOfOther(Vertex * thisVertex, Vertex * otherVertex)
 {
-	std::cout << "thisvertex " << thisVertex->toString() << "\n";
-	std::cout << "otherVertex " << otherVertex->toString() << "\n";
+	//std::cout << "thisvertex " << thisVertex->toString() << "\n";
+	//std::cout << "otherVertex " << otherVertex->toString() << "\n";
 
 	std::vector<Edge*>  copyEdges = *(otherVertex->getInEdges());
 	for (int i = 0; i < copyEdges.size(); i++)

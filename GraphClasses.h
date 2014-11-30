@@ -52,7 +52,7 @@ public:
 
 
 	// given two labels correspondng to vertices A and B, this method adds edges from all children of A
-	// to all children of B. Called to process "store" calls in LLVM
+	// to all children of B. Called to process "store" calls of store(b, a) in LLVM
 	void storeConnect(std::string a, std::string b);
 
 	// given another vertex, this method copies every edge outgoing from the other vertex
