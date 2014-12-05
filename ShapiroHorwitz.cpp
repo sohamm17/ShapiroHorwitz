@@ -16,16 +16,17 @@
 #include "llvm/Support/InstIterator.h"
 #include "llvm/IR/Instructions.h"
 #include <string>
+#include <algorithm>
 #include <set>
 #include <climits>
 #include <stdio.h>
 
 using namespace llvm;
 
-ShapiroHorwitz::ShapiroHorwitz(SetVector<llvm::Value *> Pointers, int k, Function &F, int algo)
+ShapiroHorwitz::ShapiroHorwitz(SetVector<std::string> Pointers, int k, Function &F, int algo)
 {
 	this->pointers = Pointers;
-	llvm::shapiro::Categorize<llvm::Value *> categories(Pointers, k);
+	llvm::shapiro::Categorize<std::string> categories(Pointers, k);
 	int i;
 	for(i = 0; i < categories.getNumberOfRuns(); i++)
 	{
@@ -33,17 +34,17 @@ ShapiroHorwitz::ShapiroHorwitz(SetVector<llvm::Value *> Pointers, int k, Functio
 	  std::map<std::string, int> categoryValueMapPerRun;
 	  for(j = 0; j < categories.getNumberOfCategories(); j++)
 	  {
-		  std::vector<Value *> category = categories.getCategory(j, i);
+		  std::vector<std::string> category = categories.getCategory(j, i);
 		  std::vector<std::string> categoryString;
 		  int k;
 		  for(k = 0; k < (int)category.size(); k++)
 		  {
-			  std::string o1, o2;
-			  {
-				  raw_string_ostream os1(o1);
-				  WriteAsOperand(os1, (category[k]), true, F.getParent());
-			  }
-			  categoryValueMapPerRun[o1] = j;
+//			  std::string o1, o2;
+//			  {
+//				  raw_string_ostream os1(o1);
+//				  WriteAsOperand(os1, (category[k]), true, F.getParent());
+//			  }
+			  categoryValueMapPerRun[category[k]] = j;
 		  }
 	  }
 	  categoryValueMap.push_back(categoryValueMapPerRun);
@@ -60,6 +61,7 @@ ShapiroHorwitz::ShapiroHorwitz(SetVector<llvm::Value *> Pointers, int k, Functio
 	  }
 	}
 
+	errs() << "Category Value Map is defined" << "\n";
 	int run;
 	if(algo == 1)
 		run = 1;
@@ -72,15 +74,29 @@ ShapiroHorwitz::ShapiroHorwitz(SetVector<llvm::Value *> Pointers, int k, Functio
 
 	for(i = 0; i < run; i++)
 	{
+		//errs() << "Graph called\n";
 		(*graphs)[i] = runOnFunction(F, i);
+		//errs() << "Graph call finished\n";
 		char* fileName = new char[50];
 		sprintf(fileName, "pointsToGraph%d.dot", i);
-		errs() << fileName << "\n";
+		errs() << "\n" << fileName << "\n";
 		(*graphs)[i]->createDotFile(fileName);
 		(*pointsToSets)[i] = getPointsToSetFromGraph((*graphs)[i]);
+		printPointsToIntermediate(*(*pointsToSets)[i]);
 	}
 
 	finalPointsToSet = getIntersection(pointsToSets);
+}
+
+void ShapiroHorwitz::printPointsToIntermediate(std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp> mySet)
+{
+	std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp>::iterator setIt = mySet.begin();
+	for(; setIt != mySet.end(); setIt++)
+	{
+		tuple curTuple = (*setIt);
+		errs() << "(" << curTuple.getSource() << "," << curTuple.getTarget() << ")";
+		errs() << "  ";
+	}
 }
 
 std::vector<ShapiroHorwitz::tuple> *ShapiroHorwitz::getIntersection
@@ -99,6 +115,8 @@ std::vector<ShapiroHorwitz::tuple> *ShapiroHorwitz::getIntersection
 		}
 	}
 
+	errs() << "\n Min Index:" << minSetIndex << "\n";
+
 	std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp> * minSet = (*allSets)[minSetIndex];
 
 	std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp>::iterator minSetIterator = minSet->begin();
@@ -111,11 +129,23 @@ std::vector<ShapiroHorwitz::tuple> *ShapiroHorwitz::getIntersection
 		{
 			if(i != minSetIndex)
 			{
-				std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp>::iterator findTupleIterator =
-						(*allSets)[i]->find(currentTuple);
-				if(findTupleIterator == (*allSets)[i]->end())
+				std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp> * curSet = (*allSets)[i];
+				std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp>::iterator curSetIt=
+						curSet->begin();
+				bool isFoundCurSet = false;
+				for(; curSetIt != curSet->end(); curSetIt++)
+				{
+					if(*curSetIt == currentTuple)
+					{
+						isFoundCurSet = true;
+						break;
+					}
+				}
+				if(!isFoundCurSet)
 				{
 					isFound = false;
+					currentTuple.print();
+					errs() << " not found in " << i << "\n";
 					break;//we didn't find this tuple in one of the sets; so this cannot be in the intersection
 				}
 			}
@@ -189,7 +219,7 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 			}
 			else if(StoreInst *AI = dyn_cast<StoreInst>(I))
 			{
-//				errs() << "Store: " << *I << "\n";
+				//errs() << "Store: " << *I << "\n";
 				{
 					  raw_string_ostream os1(o1), os2(o2);
 					  WriteAsOperand(os1, AI->getOperand(0), true, F.getParent());
@@ -198,8 +228,8 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 
 				if(Type *firstOperandType = dyn_cast<PointerType>(AI->getOperand(0)->getType()))
 				{
-//					errs() << "Operand1:" << o1 << ":" << *AI->getOperand(0)->getType();
-//					errs() << "\tOperand2:" << o2 << ":" << *AI->getOperand(1)->getType();
+//					errs() << "Operand1:" << o1 << ":";
+//					errs() << "\tOperand2:" << o2 << ":";
 //					errs() << "\n\n";
 					pointsToGraph->storeConnect(o2, o1);
 				}
@@ -215,10 +245,6 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 				sprintf(stackLoc, "Stack%d", StackCounter++);
 				//errs() << "Alloca: " << o1 << "\n";
 				pointsToGraph->createVertices(o1, stackLoc);
-				//errs() << "Alloca: " << o1 << "\n";
-
-				//pointsToGraph.clone(o1, o2, Edge::MAY);
-				//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
 			}
 			else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))
 			{
@@ -230,11 +256,9 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 
 
 				if(!pointsToGraph->cloneVertex(o1, o2))
-					;//errs() << "BitCast: Clonning problem:\t" << o2 << "\t" << o1 << "\n";
+					errs() << "BitCast: Clonning problem:\t" << o2 << "\t" << o1 << "\n";
 				else
 				{
-//						Unionize<std::string> myUnion(pointsToGraph.getVertexAtLabel(o1),
-//								pointsToGraph.getVertexAtLabel(o2), categoriesLastRun);
 					//errs() << "BitCast: Clonning happened:\t" << o2 << "\t" << o1 << "\n";
 				}
 				//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
@@ -261,6 +285,7 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 void ShapiroHorwitz::printPointsToSet()
 {
 	std::vector<ShapiroHorwitz::tuple>::iterator finalPointsToSetIteraor = finalPointsToSet->begin();
+	errs() << "\nFinal Points-to Set:\n";
 	for(; finalPointsToSetIteraor != finalPointsToSet->end(); finalPointsToSetIteraor++)
 	{
 		tuple curTuple = (*finalPointsToSetIteraor);

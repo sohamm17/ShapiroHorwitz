@@ -59,6 +59,8 @@ struct FreePlacement : public FunctionPass {
 	{
 		  SetVector<Value *> Pointers;
 		  SetVector<CallSite> CallSites;
+		  SetVector<std::string> PointerString;
+		  int StackCounter = 1, HeapCounter = 1;
 		  //SetVector<Value *> Loads;
 		  //SetVector<Value *> Stores;
 
@@ -68,7 +70,16 @@ struct FreePlacement : public FunctionPass {
 
 		  for (inst_iterator I = inst_begin(F), E = inst_end(F); I != E; ++I) {
 		    if (I->getType()->isPointerTy()) // Add all pointer instructions.
+		    {
 		      Pointers.insert(&*I);
+		      if(AllocaInst *AI = dyn_cast<AllocaInst>(&*I))
+		      {
+		    	  char* stackLoc = new char[50];
+		    	  sprintf(stackLoc, "Stack%d", StackCounter++);
+		    	  PointerString.insert(stackLoc);
+		      }
+		      //Value* stack = new Value();
+		    }
 //		    if (EvalTBAA && isa<LoadInst>(&*I))
 //		      Loads.insert(&*I);
 //		    if (EvalTBAA && isa<StoreInst>(&*I))
@@ -85,6 +96,17 @@ struct FreePlacement : public FunctionPass {
 		        if (isInterestingPointer(*AI))
 		          Pointers.insert(*AI);
 		      CallSites.insert(CS);
+
+				if(CallInst *AI = dyn_cast<CallInst>(&*I))
+				{
+					if(AI->getCalledFunction()->getName().compare_lower("malloc") == 0)
+					{
+						char* heapLoc = new char[50];
+						sprintf(heapLoc, "Malloc%d", HeapCounter++);
+						PointerString.insert(heapLoc);
+					}
+				}
+
 		    } else {
 		      // Consider all operands.
 		      for (Instruction::op_iterator OI = Inst.op_begin(), OE = Inst.op_end();
@@ -144,7 +166,18 @@ struct FreePlacement : public FunctionPass {
 			  //for()
 		  }*/
 
-		  ShapiroHorwitz::ShapiroHorwitz myShapiro(Pointers, 1, F, 2);
+		  llvm::SetVector<llvm::Value *>::iterator pointerIterate = Pointers.begin();
+
+		  for(; pointerIterate != Pointers.end(); pointerIterate++)
+		  {
+			  std::string o1;
+			  {
+				  raw_string_ostream os1(o1);
+				  WriteAsOperand(os1, *pointerIterate, true, F.getParent());
+			  }
+			  PointerString.insert(o1);
+		  }
+		  ShapiroHorwitz::ShapiroHorwitz myShapiro(PointerString, 2, F, 2);
 		  myShapiro.printPointsToSet();
 	}
 

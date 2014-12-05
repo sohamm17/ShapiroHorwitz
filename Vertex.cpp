@@ -79,7 +79,7 @@ void Vertex::removeInEdge(Edge * edge)
 		}
 	}
 
-	if(i < inEdges->size())
+	if(i < (int) inEdges->size())
 		inEdges->erase(inEdges->begin() + i);
 }
 
@@ -93,7 +93,7 @@ void Vertex::removeOutEdge(Edge * edge)
 			break;
 	}
 
-	if(i < outEdges->size())
+	if(i < (int) outEdges->size())
 		outEdges->erase(outEdges->begin() + i);
 }
 

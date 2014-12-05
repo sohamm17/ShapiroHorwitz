@@ -40,15 +40,15 @@ private:
 			}
 			void print() const
 			{
-				llvm::errs() << "(" << source << "," << target << ")\n";
+				llvm::errs() << "(" << source << "," << target << ")";
 			}
-			bool operator<(const tuple& rhs) const
-			{
-				return (source.compare(rhs.getSource()) && target.compare(rhs.getTarget()));
-			}
+//			bool operator<(const tuple& rhs) const
+//			{
+//				return compare(rhs) == 1;
+//			}
 			bool operator==(const tuple& rhs) const
 			{
-				return compare(rhs);
+				return compare(rhs) == 1;
 			}
 	};
 
@@ -61,17 +61,18 @@ private:
 		}
 	};
 
-	llvm::SetVector<llvm::Value *> pointers;
+	llvm::SetVector<std::string> pointers;
 	std::vector< std::map<std::string, int> > categoryValueMap;
 	std::vector<ShapiroHorwitz::tuple> *finalPointsToSet;
 	Graph * runOnFunction(llvm::Function &F, int run);
 	std::set<tuple, classcomp> * getPointsToSetFromGraph(Graph * G);
 	std::vector<ShapiroHorwitz::tuple> * getIntersection
 		(std::vector< std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp> * > * allSets);
+	void printPointsToIntermediate(std::set<ShapiroHorwitz::tuple, ShapiroHorwitz::classcomp> mySet);
 
 public:
 	//k = number of categories
-	ShapiroHorwitz(llvm::SetVector<llvm::Value *> Pointers, int k, llvm::Function &F, int algo);
+	ShapiroHorwitz(llvm::SetVector<std::string> Pointers, int k, llvm::Function &F, int algo);
 	void printPointsToSet();
 };
 
