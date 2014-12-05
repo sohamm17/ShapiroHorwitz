@@ -41,6 +41,10 @@ public:
 	// add an edge to a newly constructed vertex
 	void addTarget(std::string targetVar);
 
+	// check if a vertex has an edge to the input target vertex
+	// (used so don't add duplicates in addTargetsOfOther
+	bool alreadyHasEdge(Vertex * targetVertex);
+
 	// given another vertex, this method copies every edge outgoing from the other vertex
 	// and adds to this one
 	void addTargetsOfOther(Vertex * otherVertex);

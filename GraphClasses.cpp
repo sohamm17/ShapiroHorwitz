@@ -170,12 +170,17 @@ void Graph::storeConnect(std::string a, std::string b){
 // and adds to this one
 void Graph::addTargetsOfOther(Vertex * thisVertex, Vertex * otherVertex)
 {
+	//TODO check if the edge already exists
 	std::vector<Edge*>  copyEdges = *(otherVertex->getOutEdges());
 	for (int i = 0; i < copyEdges.size(); i++)
 	{
 		Edge* edgeToCopy = copyEdges[i];
+		Vertex * targetVertex = edgeToCopy->getTarget();
 		//thisVertex->addTarget(edgeToCopy->getTarget());
-		createEdge(thisVertex, edgeToCopy->getTarget());
+		if (!thisVertex->alreadyHasEdge(targetVertex))
+		{
+			createEdge(thisVertex, edgeToCopy->getTarget());
+		}
 	}
 }
 
@@ -191,7 +196,7 @@ void Graph::addSourcesOfOther(Vertex * thisVertex, Vertex * otherVertex)
 	{
 		Edge* edgeToCopy = copyEdges[i];
 		//thisVertex->addTarget(edgeToCopy->getTarget());
-		edgeToCopy->getSource()->addTarget(thisVertex);
+		edgeToCopy->getSource()->addTarget(thisVertex); // no need to be recursive
 		//createEdge(edgeToCopy->getSource(), thisVertex);
 	}
 }

@@ -124,6 +124,13 @@ void Vertex::addTargetsOfOther(Vertex * otherVertex)
 	}
 }
 
+// check if a vertex has an edge to the input target vertex
+// (used so don't add duplicates in addTargetsOfOther
+bool alreadyHasEdge(Vertex * targetVertex)
+{
+	return false;
+}
+
 std::string Vertex::getFirstLabel()
 {
 	return (*variables)[0];
