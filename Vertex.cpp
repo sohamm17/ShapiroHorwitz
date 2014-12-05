@@ -126,8 +126,17 @@ void Vertex::addTargetsOfOther(Vertex * otherVertex)
 
 // check if a vertex has an edge to the input target vertex
 // (used so don't add duplicates in addTargetsOfOther
-bool alreadyHasEdge(Vertex * targetVertex)
+bool Vertex::alreadyHasEdge(Vertex * targetVertex)
 {
+	std::vector<Vertex *> outVertices =  *(this->getOutVertices());
+	std::vector<Vertex *>::iterator it = outVertices.begin();
+	for (; it != outVertices.end(); it++)
+	{
+		if (*it == targetVertex)
+		{
+			return true;
+		}
+	}
 	return false;
 }
 
