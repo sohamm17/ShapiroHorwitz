@@ -174,20 +174,14 @@ std::vector<std::string> * Vertex::getLabels()
 void Vertex::takeLabels(Vertex * other)
 {
 	std::vector<std::string> otherVariables = *(other->getLabels());
-	//std::vector<std::string>::iterator labelIterator = otherVariables->begin();
+	std::vector<std::string>::iterator labelIterator = otherVariables.begin();
 
-	/*for(; labelIterator != otherVariables->end(); labelIterator++, count++)
+	for(int count = 0; labelIterator != otherVariables.end(); labelIterator++, count++)
 	{
-		std::cout << count << " " << *labelIterator << "\n";
+		//std::cout << count << " " << *labelIterator << "\n";
 		this->variables->push_back(*labelIterator);
-	}*/
-
-	for(int i = 0; i < otherVariables.size(); i++)
-	{
-		std::string thisLabel = otherVariables[i];
-		std::cout << i << " " << thisLabel << "\n";
-		this->variables->push_back(thisLabel);
 	}
+
 }
 
 std::string Vertex::toString()
