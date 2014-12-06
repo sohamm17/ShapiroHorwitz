@@ -176,10 +176,11 @@ void Graph::addTargetsOfOther(Vertex * thisVertex, Vertex * otherVertex)
 	{
 		Edge* edgeToCopy = copyEdges[i];
 		Vertex * targetVertex = edgeToCopy->getTarget();
+		std::cout << targetVertex->getFirstLabel() << "\n";
 		//thisVertex->addTarget(edgeToCopy->getTarget());
 		if (!thisVertex->alreadyHasEdge(targetVertex))
 		{
-			createEdge(thisVertex, edgeToCopy->getTarget());
+			createEdge(thisVertex, targetVertex);
 		}
 	}
 }
@@ -327,6 +328,7 @@ bool Graph::unionize(Vertex * source, Vertex * target)
 
 bool Graph::isSameCategory(Vertex * A, Vertex * B)
 {
+
 	// we only need the first label from the vertices since every label of a given
 	// vertex must be in the same category
 	std::string labelA = A->getFirstLabel();
@@ -339,6 +341,7 @@ bool Graph::isSameCategory(Vertex * A, Vertex * B)
 	}
 	int categoryA = categoryMap->at(labelA);
 	int categoryB = categoryMap->at(labelB);
+	//std::cout << "category of " << labelA << " == " << categoryA;
 
 	return (categoryA == categoryB);
 
@@ -350,9 +353,12 @@ bool Graph::isSameCategory(Vertex * A, Vertex * B)
 void Graph::merge(Vertex * A, Vertex* B)
 
 {
+	std::cout << "merge " << A->getFirstLabel() << " and " << B->getFirstLabel() << "\n";
 	addTargetsOfOther(A, B);
 	addSourcesOfOther(A,B);
 	takeLabels(A,B);
+
+	std::cout << " removing " << B->getFirstLabel() << "\n";
 	removeVertex(B);
 	return;
 
@@ -372,7 +378,6 @@ void Graph::takeLabels(Vertex * A, Vertex * B)
 	}
 
 	A->takeLabels(B);
-
 	return;
 }
 
