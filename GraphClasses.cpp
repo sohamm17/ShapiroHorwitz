@@ -181,14 +181,11 @@ void Graph::storeConnect(std::string a, std::string b){
 // and adds to this one
 void Graph::addTargetsOfOther(Vertex * thisVertex, Vertex * otherVertex)
 {
-	//TODO check if the edge already exists
 	std::vector<Edge*>  copyEdges = *(otherVertex->getOutEdges());
 	for (int i = 0; i < copyEdges.size(); i++)
 	{
 		Edge* edgeToCopy = copyEdges[i];
 		Vertex * targetVertex = edgeToCopy->getTarget();
-		std::cout << targetVertex->getFirstLabel() << "\n";
-		//thisVertex->addTarget(edgeToCopy->getTarget());
 		if (!thisVertex->alreadyHasEdge(targetVertex))
 		{
 			createEdge(thisVertex, targetVertex);
