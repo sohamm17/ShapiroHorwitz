@@ -39,21 +39,91 @@ STATISTIC(FreeCounter, "Counts number of pointers");
 
 namespace {
 // Hello - The first implementation, without getAnalysisUsage.
-struct FreePlacement : public FunctionPass {
+struct FreePlacement : public FunctionPass, public AliasAnalysis {
 	static char ID; // Pass identification, replacement for typeid
 	std::vector< std::map<std::string, int> > categoryValueMap;
 	FreePlacement() : FunctionPass(ID) {}
 
-	virtual void getAnalysisUsage(AnalysisUsage &AU) const
+	/*virtual void getAnalysisUsage(AnalysisUsage &AU) const
 	{
 		//AU.addRequired<AliasAnalysis>();
 		//AU.setPreservesAll();
-	}
+	}*/
 
 	static inline bool isInterestingPointer(Value *V) {
 	  return V->getType()->isPointerTy()
 	      && !isa<ConstantPointerNull>(V);
 	}
+
+
+
+
+
+    virtual void initializePass() {
+      InitializeAliasAnalysis(this);
+    }
+
+    virtual void getAnalysisUsage(AnalysisUsage &AU) const {
+      AU.addRequired<AliasAnalysis>();
+      //AU.addRequired<TargetLibraryInfo>();
+    }
+
+    virtual AliasResult alias(const Location &LocA,
+                              const Location &LocB) {
+     /* assert(AliasCache.empty() && "AliasCache must be cleared after use!");
+      assert(notDifferentParent(LocA.Ptr, LocB.Ptr) &&
+             "BasicAliasAnalysis doesn't support interprocedural queries.");
+      AliasResult Alias = aliasCheck(LocA.Ptr, LocA.Size, LocA.TBAATag,
+                                     LocB.Ptr, LocB.Size, LocB.TBAATag);
+      // AliasCache rarely has more than 1 or 2 elements, always use
+      // shrink_and_clear so it quickly returns to the inline capacity of the
+      // SmallDenseMap if it ever grows larger.
+      // FIXME: This should really be shrink_to_inline_capacity_and_clear().
+      AliasCache.shrink_and_clear();
+      return Alias;*/
+    }
+
+    virtual ModRefResult getModRefInfo(ImmutableCallSite CS,
+                                       const Location &Loc);
+
+    virtual ModRefResult getModRefInfo(ImmutableCallSite CS1,
+                                       ImmutableCallSite CS2) {
+      // The AliasAnalysis base class has some smarts, lets use them.
+      return AliasAnalysis::getModRefInfo(CS1, CS2);
+    }
+
+    /// pointsToConstantMemory - Chase pointers until we find a (constant
+    /// global) or not.
+    virtual bool pointsToConstantMemory(const Location &Loc, bool OrLocal);
+
+    /// getModRefBehavior - Return the behavior when calling the given
+    /// call site.
+    virtual ModRefBehavior getModRefBehavior(ImmutableCallSite CS);
+
+    /// getModRefBehavior - Return the behavior when calling the given function.
+    /// For use when the call site is not known.
+    virtual ModRefBehavior getModRefBehavior(const Function *F);
+
+    /// getAdjustedAnalysisPointer - This method is used when a pass implements
+    /// an analysis interface through multiple inheritance.  If needed, it
+    /// should override this to adjust the this pointer as needed for the
+    /// specified pass info.
+    virtual void *getAdjustedAnalysisPointer(const void *ID) {
+      if (ID == &AliasAnalysis::ID)
+        return (AliasAnalysis*)this;
+      return this;
+    }
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+///////////////// END OF DECLARATIONS FROM BASICAA       /////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 
 	void getPointersCategorized(Function &F, int k)
 	{
