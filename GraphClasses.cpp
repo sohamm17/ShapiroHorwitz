@@ -218,6 +218,19 @@ void Graph::loadConnect(std::string a, std::string b)
 	}
 }
 
+// given two strings corresponding to existing vertices, and a label for a
+// to-be-constructed vertex, this method creates the vertex with all the children
+// of each vertex
+// Called to process "phi" calls in LLVM
+void Graph::phiConnect(std::string newLabel, std::string a, std::string b)
+{
+	cloneVertex(newLabel, a);
+	Vertex * newVertex = getVertexAtLabel(newLabel);
+	Vertex * bVertex = getVertexAtLabel(b);
+	addTargetsOfOther(newVertex, bVertex);
+
+}
+
 
 void Graph::createDotFile(std::string fileName)
 {
