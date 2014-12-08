@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string.h>
 #include <iostream>
+#include "llvm/Support/raw_ostream.h"
 /////////////////    Vertex Class   //////////////////////
 
 
