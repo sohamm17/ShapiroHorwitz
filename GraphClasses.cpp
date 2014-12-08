@@ -299,11 +299,12 @@ void Graph::createDotFile(std::string fileName)
 Vertex * Graph::getVertexAtLabel(std::string label)
 {
 	// note: this may need a safety check since apparently at throws an exception
-	if (vertexMap->find( label ) != vertexMap->end())
+	/*if (vertexMap->find( label ) != vertexMap->end())
 		return vertexMap->at(label);
 	else
 		return NULL;
-
+	*/
+	return (*vertexMap)[label];
 }
 
 
