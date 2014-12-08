@@ -1,5 +1,5 @@
 #include "GraphClasses.h"
-//#include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/raw_ostream.h"
 #include <fstream>
 #include <iostream>
 
@@ -47,7 +47,7 @@ Vertex * Graph::createVertex(std::string vertexLabel)
 	Vertex * newVertex = getVertexAtLabel(vertexLabel);
 	if (newVertex == NULL)
 	{
-		Vertex * newVertex = new Vertex(vertexLabel);
+		newVertex = new Vertex(vertexLabel);
 		(*vertexMap)[vertexLabel] = newVertex;
 		vertices->push_back(newVertex);
 	}
@@ -188,6 +188,7 @@ void Graph::addTargetsOfOther(Vertex * thisVertex, Vertex * otherVertex)
 		Edge* edgeToCopy = copyEdges[i];
 		Vertex * targetVertex = edgeToCopy->getTarget();
 		std::cout << targetVertex->getFirstLabel() << "\n";
+		std::cout << "afsefesfg";
 		//thisVertex->addTarget(edgeToCopy->getTarget());
 		if (!thisVertex->alreadyHasEdge(targetVertex))
 		{

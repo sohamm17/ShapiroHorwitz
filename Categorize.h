@@ -58,13 +58,13 @@ class Categorize
 
 		Categorize(llvm::SetVector<T> collection, int category)
 		{
-			llvm::errs() << "In Constructor\n";
+			//llvm::errs() << "In Constructor\n";
 			numVariables = (int) collection.size();
 			numCategories = category;
 			this->generateArray(1, numVariables, numCategories);
-			llvm::errs() << "Created Base array\n";
+			//llvm::errs() << "Created Base array\n";
 			categoryBucket = *(new std::vector< templateVector >(category));
-			llvm::errs() << "Created Category Bucket\n";
+			//llvm::errs() << "Created Category Bucket\n";
 			numberRuns = 0;
 			// tricky way to calculate the number of runs
 			numberRuns = (int) arr[numVariables - 1].getFullNumber().size();
@@ -98,7 +98,7 @@ class Categorize
 			{
 				varToBaseMap.insert(std::pair<Base*, T>((&arr[i++]), *I1) );
 			}
-			llvm::errs() << "End of Constructor\n";
+			//llvm::errs() << "End of Constructor\n";
 		}
 
 		std::vector<T> getCategory(int category, int run)
