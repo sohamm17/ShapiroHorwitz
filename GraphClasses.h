@@ -68,6 +68,13 @@ public:
 	// Called to process "load" calls in LLVM
 	void loadConnect(std::string a, std::string b);
 
+
+	// given two strings corresponding to existing vertices, and a label for a
+	// to-be-constructed vertex, this method creates the vertex with all the children
+	// of each vertex
+	// Called to process "phi" calls in LLVM
+	void phiConnect(std::string newLabel, std::string a, std::string b);
+
 	// creates a dot file of the graph for visual inspection
 	void createDotFile(std::string fileName);
 
