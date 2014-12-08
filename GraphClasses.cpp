@@ -93,9 +93,9 @@ void Graph::removeVertex(Vertex * thisVertex)
 
 void Graph::createVertices(std::string sourceVar, std::string targetVar)
 {
-	Vertex * targetVertex = createVertex(targetVar);
+	createVertex(targetVar);
 
-	Vertex * sourceVertex = createVertex(sourceVar, targetVar);
+	createVertex(sourceVar, targetVar);
 
 }
 
