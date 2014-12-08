@@ -22,10 +22,19 @@ Graph::Graph(std::map<std::string, int> * categoryMap)
 void Graph::createVertex(std::string sourceVar, std::string targetVar)
 {
 	Vertex * targetVertex = (*vertexMap)[targetVar];
-	Vertex * newVertex = new Vertex(sourceVar, targetVertex);
-	(*vertexMap)[sourceVar] = newVertex;
-	vertices->push_back(newVertex);
 
+	// check if source already exists
+	Vertex * sourceVertex = getVertexAtLabel(sourceVar);
+	if (sourceVertex == NULL)
+	{
+		Vertex * newVertex = new Vertex(sourceVar, targetVertex);
+		(*vertexMap)[sourceVar] = newVertex;
+		vertices->push_back(newVertex);
+	}
+	else
+	{
+		createEdge(sourceVertex, targetVertex);
+	}
 
 
 }
@@ -34,9 +43,16 @@ void Graph::createVertex(std::string sourceVar, std::string targetVar)
 // to create a new vertex without edges and add it to the graph.
 Vertex * Graph::createVertex(std::string vertexLabel)
 {
-	Vertex * newVertex = new Vertex(vertexLabel);
-	(*vertexMap)[vertexLabel] = newVertex;
-	vertices->push_back(newVertex);
+	// check if already exists
+	Vertex * newVertex = getVertexAtLabel(vertexLabel);
+	if (newVertex == NULL)
+	{
+		Vertex * newVertex = new Vertex(vertexLabel);
+		(*vertexMap)[vertexLabel] = newVertex;
+		vertices->push_back(newVertex);
+	}
+
+
 	return newVertex;
 }
 
@@ -77,14 +93,9 @@ void Graph::removeVertex(Vertex * thisVertex)
 
 void Graph::createVertices(std::string sourceVar, std::string targetVar)
 {
-	Vertex * targetVertex = new Vertex(targetVar);
-	(*vertexMap)[targetVar] = targetVertex;
+	Vertex * targetVertex = createVertex(targetVar);
 
-	Vertex * sourceVertex = new Vertex(sourceVar, targetVertex);
-	(*vertexMap)[sourceVar] = sourceVertex;
-
-	vertices->push_back(sourceVertex);
-	vertices->push_back(targetVertex);
+	Vertex * sourceVertex = createVertex(sourceVar, targetVar);
 
 }
 
@@ -224,9 +235,10 @@ void Graph::loadConnect(std::string a, std::string b)
 // Called to process "phi" calls in LLVM
 void Graph::phiConnect(std::string newLabel, std::string a, std::string b)
 {
-	cloneVertex(newLabel, a);
-	Vertex * newVertex = getVertexAtLabel(newLabel);
-	Vertex * bVertex = getVertexAtLabel(b);
+	Vertex * aVertex = createVertex(a);
+	Vertex * bVertex = createVertex(b);
+	Vertex * newVertex = createVertex(newLabel);
+	addTargetsOfOther(newVertex, aVertex);
 	addTargetsOfOther(newVertex, bVertex);
 
 }
@@ -287,7 +299,10 @@ void Graph::createDotFile(std::string fileName)
 Vertex * Graph::getVertexAtLabel(std::string label)
 {
 	// note: this may need a safety check since apparently at throws an exception
+	if (vertexMap->find( label ) != vertexMap->end())
 		return vertexMap->at(label);
+	else
+		return NULL;
 
 }
 
