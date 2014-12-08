@@ -295,3 +295,27 @@ void ShapiroHorwitz::printPointsToSet()
 	errs() << "\n";
 }
 
+// 0 - No Alias
+// 1 - May Alias
+int ShapiroHorwitz::Alias(const std::string V1, const std::string V2)
+{
+	std::vector<ShapiroHorwitz::tuple>::iterator finalPointsToSetIteraor = finalPointsToSet->begin();
+	std::vector<std::string> V1PointsTo;
+	for(; finalPointsToSetIteraor != finalPointsToSet->end(); finalPointsToSetIteraor++)
+	{
+		tuple curTuple = (*finalPointsToSetIteraor);
+		if(curTuple.getSource().compare(V1) == 0)
+			V1PointsTo.push_back(curTuple.getTarget());
+	}
+	finalPointsToSetIteraor = finalPointsToSet->begin();
+	for(; finalPointsToSetIteraor != finalPointsToSet->end(); finalPointsToSetIteraor++)
+	{
+		tuple curTuple = (*finalPointsToSetIteraor);
+		if(curTuple.getSource().compare(V2) == 0)
+		{
+			if(std::find(V1PointsTo.begin(), V1PointsTo.end(), curTuple.getTarget()) != V1PointsTo.end())
+				return 1; //we found one common thing that they both points to
+		}
+	}
+	return 0;
+}

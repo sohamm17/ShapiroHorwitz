@@ -12,12 +12,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#define DEBUG_TYPE "freeplacement"
+#define DEBUG_TYPE "ShapiroHorwitzAliasAnalysis"
 #include "llvm/Analysis/AliasAnalysis.h"
 #include "llvm/InitializePasses.h"
 #include "llvm/ADT/Statistic.h"
 #include "llvm/IR/Function.h"
 #include "llvm/Pass.h"
+#include "llvm/PassSupport.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/IR/Instructions.h"
@@ -39,10 +40,12 @@ STATISTIC(FreeCounter, "Counts number of pointers");
 
 namespace {
 // Hello - The first implementation, without getAnalysisUsage.
-struct FreePlacement : public FunctionPass, public AliasAnalysis {
+struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 	static char ID; // Pass identification, replacement for typeid
 	std::vector< std::map<std::string, int> > categoryValueMap;
-	FreePlacement() : FunctionPass(ID) {}
+	ShapiroHorwitzAliasAnalysis() : FunctionPass(ID) {
+		initializeShapiroHorwitzAliasAnalysis(*PassRegistry::getPassRegistry());
+	}
 
 	/*virtual void getAnalysisUsage(AnalysisUsage &AU) const
 	{
@@ -64,7 +67,8 @@ struct FreePlacement : public FunctionPass, public AliasAnalysis {
     }
 
     virtual void getAnalysisUsage(AnalysisUsage &AU) const {
-      AU.addRequired<AliasAnalysis>();
+    	AliasAnalysis::getAnalysisUsage(AU);
+      //AU.addRequired<AliasAnalysis>();
       //AU.addRequired<TargetLibraryInfo>();
     }
 
@@ -249,10 +253,37 @@ struct FreePlacement : public FunctionPass, public AliasAnalysis {
 		  }
 		  ShapiroHorwitz::ShapiroHorwitz myShapiro(PointerString, 2, F, 2);
 		  myShapiro.printPointsToSet();
+			for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
+			{
+				for (BasicBlock::iterator I = BI->begin(), E = BI->end(); I != E; ++I)
+				{
+					for(Function::iterator BI2 = F.begin(), BE2 = F.end(); BI2 != BE2; ++BI2)
+					{
+						for (BasicBlock::iterator I2 = BI2->begin(), E2 = BI2->end(); I2 != E2; ++I2)
+						{
+							std::string o1, o2;
+							  {
+								  raw_string_ostream os1(o1), os2(o2);
+								  WriteAsOperand(os1, I, true, F.getParent());
+								  WriteAsOperand(os2, I2, true, F.getParent());
+							  }
+							//Instruction *AI, *AI2;
+							//if ((AI = dyn_cast<Instruction>(I)) && (AI2 = dyn_cast<Instruction>(I2)))
+							{
+								errs() << *I << ", " << *I2 << ":\t";
+								errs() << myShapiro.Alias(o1, o2) << "\n"; //!= AliasAnalysis::NoAlias)
+
+							}
+						}
+					}
+				}
+			}
+
 	}
 
 	virtual bool runOnFunction(Function &F)
 	{
+		InitializeAliasAnalysis(this);
 		++FreeCounter;
 		errs() << "Free Placement:" << F.getName() << "\n";
 		std::vector<ReturnInst*> Returns;
@@ -378,5 +409,12 @@ struct FreePlacement : public FunctionPass, public AliasAnalysis {
 }
 
 
-char FreePlacement::ID = 0;
-static RegisterPass<FreePlacement> X("FreePlacement", "Free Placement Pass");
+char ShapiroHorwitzAliasAnalysis::ID = 0;
+INITIALIZE_AG_PASS_BEGIN(ShapiroHorwitzAliasAnalysis, AliasAnalysis, "ShapiroHorwitz",
+                   "Basic Alias Analysis (stateless AA impl)",
+                   false, true, false)
+//INITIALIZE_PASS_DEPENDENCY(TargetLibraryInfo)
+INITIALIZE_AG_PASS_END(ShapiroHorwitzAliasAnalysis, AliasAnalysis, "ShapiroHorwitz",
+                   "Basic Alias Analysis (stateless AA impl)",
+                   false, true, false)
+//static RegisterPass<ShapiroHorwitzAliasAnalysis> X("ShapiroHorwitz", "ShapiroHorwitz Alias Analysis.");

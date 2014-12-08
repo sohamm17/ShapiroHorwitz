@@ -8,7 +8,7 @@
 ##===----------------------------------------------------------------------===##
 
 LEVEL = ../../..
-LIBRARYNAME = LLVMFreePlacement
+LIBRARYNAME = LLVMShapiroHorwitz
 LOADABLE_MODULE = 1
 USEDLIBS =
 
@@ -16,7 +16,7 @@ USEDLIBS =
 # from the hello plugin.
 ifneq ($(REQUIRES_RTTI), 1)
 ifneq ($(REQUIRES_EH), 1)
-EXPORTED_SYMBOL_FILE = $(PROJ_SRC_DIR)/FreePlacement.exports
+EXPORTED_SYMBOL_FILE = $(PROJ_SRC_DIR)/ShapiroHorwitz.exports
 endif
 endif
 

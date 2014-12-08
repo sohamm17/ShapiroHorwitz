@@ -72,8 +72,10 @@ private:
 
 public:
 	//k = number of categories
+	//algo can 1 or 2
 	ShapiroHorwitz(llvm::SetVector<std::string> Pointers, int k, llvm::Function &F, int algo);
 	void printPointsToSet();
+	int Alias(const std::string V1, const std::string V2);
 };
 
 #endif /* LLVM_3_4_LIB_TRANSFORMS_FREEPLACEMENT_SHAPIROHORWITZ_H_ */
