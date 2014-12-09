@@ -40,7 +40,7 @@ STATISTIC(ShapiroHorwitzCounter, "Counts number of pointers");
 
 namespace {
 // Hello - The first implementation, without getAnalysisUsage.
-struct ShapiroHorwitzAliasAnalysis : public FunctionPass/*, public AliasAnalysis*/{
+struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 	static char ID; // Pass identification, replacement for typeid
 	std::vector< std::map<std::string, int> > categoryValueMap;
 	ShapiroHorwitzAliasAnalysis() : FunctionPass(ID) {
@@ -275,4 +275,7 @@ char ShapiroHorwitzAliasAnalysis::ID = 0;
 //INITIALIZE_AG_PASS_END(ShapiroHorwitzAliasAnalysis, AliasAnalysis, "ShapiroHorwitz",
 //                   "Shapiro Horwitz Alias Analysis",
 //                   false, true, false)
+
+
 static RegisterPass<ShapiroHorwitzAliasAnalysis> X("ShapiroHorwitz", "ShapiroHorwitz Alias Analysis.");
+static RegisterAnalysisGroup<AliasAnalysis> E(X);
