@@ -242,6 +242,19 @@ void Graph::phiConnect(std::string newLabel, std::string a, std::string b)
 }
 
 
+// given the label for a new variable, this method creates a new vertex with an edge
+// to all other vertices. This is called for non-malloc functions (very conservative)
+void Graph::functionConnect(std::string newLabel)
+{
+	Vertex * newVertex = createVertex(newLabel);
+	std::vector<Vertex *>::iterator vi = this->vertices->begin();
+	for (; vi != this->vertices->end(); vi++)
+	{
+		createEdge(newVertex, (*vi));
+	}
+
+}
+
 void Graph::createDotFile(std::string fileName)
 {
 	std::ofstream outFile;
