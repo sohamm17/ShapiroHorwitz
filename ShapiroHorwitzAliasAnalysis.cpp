@@ -43,6 +43,7 @@ namespace {
 struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 	static char ID; // Pass identification, replacement for typeid
 	std::vector< std::map<std::string, int> > categoryValueMap;
+	ShapiroHorwitz * myShapiro;
 	ShapiroHorwitzAliasAnalysis() : FunctionPass(ID) {
 		//initializeShapiroHorwitzAliasAnalysisPass(*PassRegistry::getPassRegistry());
 	}
@@ -61,61 +62,75 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 
 
 
-//
-//    virtual void initializePass() {
-//      InitializeAliasAnalysis(this);
-//    }
-//
+
+    virtual void initializePass() {
+      InitializeAliasAnalysis(this);
+    }
+
 //    virtual void getAnalysisUsage(AnalysisUsage &AU) const {
 //    //AliasAnalysis::getAnalysisUsage(AU);
 //      AU.addRequired<AliasAnalysis>();
 //      //AU.addRequired<TargetLibraryInfo>();
 //    }
-//
-//    virtual AliasResult alias(const Location &LocA,
-//                              const Location &LocB) {
-//     /* assert(AliasCache.empty() && "AliasCache must be cleared after use!");
-//      assert(notDifferentParent(LocA.Ptr, LocB.Ptr) &&
-//             "BasicAliasAnalysis doesn't support interprocedural queries.");
-//      AliasResult Alias = aliasCheck(LocA.Ptr, LocA.Size, LocA.TBAATag,
-//                                     LocB.Ptr, LocB.Size, LocB.TBAATag);
-//      // AliasCache rarely has more than 1 or 2 elements, always use
-//      // shrink_and_clear so it quickly returns to the inline capacity of the
-//      // SmallDenseMap if it ever grows larger.
-//      // FIXME: This should really be shrink_to_inline_capacity_and_clear().
-//      AliasCache.shrink_and_clear();
-//      return Alias;*/
-//    }
-//
-//    //virtual ModRefResult getModRefInfo(ImmutableCallSite CS, const Location &Loc);
-//
-//    virtual ModRefResult getModRefInfo(ImmutableCallSite CS1,
-//                                       ImmutableCallSite CS2) {
-//      // The AliasAnalysis base class has some smarts, lets use them.
-//      return AliasAnalysis::getModRefInfo(CS1, CS2);
-//    }
-//
-//    /// pointsToConstantMemory - Chase pointers until we find a (constant
-//    /// global) or not.
-//    //virtual bool pointsToConstantMemory(const Location &Loc, bool OrLocal);
-//
-//    /// getModRefBehavior - Return the behavior when calling the given
-//    /// call site.
-//    //virtual ModRefBehavior getModRefBehavior(ImmutableCallSite CS);
-//
-//    /// getModRefBehavior - Return the behavior when calling the given function.
-//    /// For use when the call site is not known.
-//    //virtual ModRefBehavior getModRefBehavior(const Function *F);
-//
-//    /// getAdjustedAnalysisPointer - This method is used when a pass implements
-//    /// an analysis interface through multiple inheritance.  If needed, it
-//    /// should override this to adjust the this pointer as needed for the
-//    /// specified pass info.
-//    virtual void *getAdjustedAnalysisPointer(const void *ID) {
-//      if (ID == &AliasAnalysis::ID)
-//        return (AliasAnalysis*)this;
-//      return this;
-//    }
+
+    virtual AliasResult alias(const Location &LocA,
+                              const Location &LocB) {
+     /* assert(AliasCache.empty() && "AliasCache must be cleared after use!");
+      assert(notDifferentParent(LocA.Ptr, LocB.Ptr) &&
+             "BasicAliasAnalysis doesn't support interprocedural queries.");
+      AliasResult Alias = aliasCheck(LocA.Ptr, LocA.Size, LocA.TBAATag,
+                                     LocB.Ptr, LocB.Size, LocB.TBAATag);
+      // AliasCache rarely has more than 1 or 2 elements, always use
+      // shrink_and_clear so it quickly returns to the inline capacity of the
+      // SmallDenseMap if it ever grows larger.
+      // FIXME: This should really be shrink_to_inline_capacity_and_clear().
+      AliasCache.shrink_and_clear();
+      return Alias;*/
+
+
+    	// ----------- Soham - Analysis
+
+    	std::string o1, o2;
+//		{
+//			raw_string_ostream os1(o1), os2(o2);
+//			WriteAsOperand(os1, LocA.Ptr, true, F.getParent());
+//			WriteAsOperand(os2, LocB.Ptr, true, F.getParent());
+//		}
+    	errs() << "LocA:" << LocA.Ptr->getName() << "\n";
+    	errs() << "LocB:" << LocB.Ptr->getName() << "\n";
+    	return AliasAnalysis::NoAlias;
+    	//return myShapiro->Alias(o1, o2);
+    }
+
+    //virtual ModRefResult getModRefInfo(ImmutableCallSite CS, const Location &Loc);
+
+    virtual ModRefResult getModRefInfo(ImmutableCallSite CS1,
+                                       ImmutableCallSite CS2) {
+      // The AliasAnalysis base class has some smarts, lets use them.
+      return AliasAnalysis::getModRefInfo(CS1, CS2);
+    }
+
+    /// pointsToConstantMemory - Chase pointers until we find a (constant
+    /// global) or not.
+    //virtual bool pointsToConstantMemory(const Location &Loc, bool OrLocal);
+
+    /// getModRefBehavior - Return the behavior when calling the given
+    /// call site.
+    //virtual ModRefBehavior getModRefBehavior(ImmutableCallSite CS);
+
+    /// getModRefBehavior - Return the behavior when calling the given function.
+    /// For use when the call site is not known.
+    //virtual ModRefBehavior getModRefBehavior(const Function *F);
+
+    /// getAdjustedAnalysisPointer - This method is used when a pass implements
+    /// an analysis interface through multiple inheritance.  If needed, it
+    /// should override this to adjust the this pointer as needed for the
+    /// specified pass info.
+    virtual void *getAdjustedAnalysisPointer(const void *ID) {
+      if (ID == &AliasAnalysis::ID)
+        return (AliasAnalysis*)this;
+      return this;
+    }
 
 
 
@@ -205,7 +220,7 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 					  raw_string_ostream os1(o1), os2(o2);
 					  WriteAsOperand(os1, *I1, true, F.getParent());
 				}
-				errs() << o1 << "\n";
+				//errs() << o1 << "\n";
 		  }
 
 		  llvm::SetVector<llvm::Value *>::iterator pointerIterate = Pointers.begin();
@@ -219,36 +234,39 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 			  }
 			  PointerString.insert(o1);
 		  }
-		  ShapiroHorwitz::ShapiroHorwitz myShapiro(PointerString, k, F, 2);
-		  myShapiro.printPointsToSet();
-			for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
-			{
-				for (BasicBlock::iterator I = BI->begin(), E = BI->end(); I != E; ++I)
-				{
-					for(Function::iterator BI2 = F.begin(), BE2 = F.end(); BI2 != BE2; ++BI2)
-					{
-						for (BasicBlock::iterator I2 = BI2->begin(), E2 = BI2->end(); I2 != E2; ++I2)
-						{
-							std::string o1, o2;
-							  {
-								  raw_string_ostream os1(o1), os2(o2);
-								  WriteAsOperand(os1, I, true, F.getParent());
-								  WriteAsOperand(os2, I2, true, F.getParent());
-							  }
-							//Instruction *AI, *AI2;
-							//if ((AI = dyn_cast<Instruction>(I)) && (AI2 = dyn_cast<Instruction>(I2)))
-							{
-								int alias = myShapiro.Alias(o1, o2);
-								if(alias > 0)
-								{
-									errs() << *I << ", " << *I2 << ":\t";
-									errs() << alias << "\n"; //!= AliasAnalysis::NoAlias)
-								}
-							}
-						}
-					}
-				}
-			}
+		  myShapiro = new ShapiroHorwitz::ShapiroHorwitz(PointerString, k, F, 2);
+		  myShapiro->printPointsToSet();
+
+
+		  ///// ------- For printing the alias relations
+//			for(Function::iterator BI = F.begin(), BE = F.end(); BI != BE; ++BI)
+//			{
+//				for (BasicBlock::iterator I = BI->begin(), E = BI->end(); I != E; ++I)
+//				{
+//					for(Function::iterator BI2 = F.begin(), BE2 = F.end(); BI2 != BE2; ++BI2)
+//					{
+//						for (BasicBlock::iterator I2 = BI2->begin(), E2 = BI2->end(); I2 != E2; ++I2)
+//						{
+//							std::string o1, o2;
+//							  {
+//								  raw_string_ostream os1(o1), os2(o2);
+//								  WriteAsOperand(os1, I, true, F.getParent());
+//								  WriteAsOperand(os2, I2, true, F.getParent());
+//							  }
+//							//Instruction *AI, *AI2;
+//							//if ((AI = dyn_cast<Instruction>(I)) && (AI2 = dyn_cast<Instruction>(I2)))
+//							{
+//								int alias = myShapiro.Alias(o1, o2);
+//								if(alias > 0)
+//								{
+//									errs() << *I << ", " << *I2 << ":\t";
+//									errs() << alias << "\n"; //!= AliasAnalysis::NoAlias)
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
 
 	}
 
@@ -256,9 +274,9 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 	{
 		//InitializeAliasAnalysis(this);
 		++ShapiroHorwitzCounter;
-		errs() << "Free Placement:" << F.getName() << "\n";
-		std::vector<ReturnInst*> Returns;
-		std::vector<CallInst*> Frees;
+		errs() << "Function Name:" << F.getName() << "\n";
+//		std::vector<ReturnInst*> Returns;
+//		std::vector<CallInst*> Frees;
 
 		getPointersCategorized(F, 2);
 		return false;
