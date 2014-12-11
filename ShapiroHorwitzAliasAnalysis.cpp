@@ -44,6 +44,7 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 	static char ID; // Pass identification, replacement for typeid
 	std::vector< std::map<std::string, int> > categoryValueMap;
 	ShapiroHorwitz * myShapiro;
+	Function* FuncPoint;
 	ShapiroHorwitzAliasAnalysis() : FunctionPass(ID) {
 		//initializeShapiroHorwitzAliasAnalysisPass(*PassRegistry::getPassRegistry());
 	}
@@ -91,24 +92,27 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
     	// ----------- Soham - Analysis
 
     	std::string o1, o2;
-//		{
-//			raw_string_ostream os1(o1), os2(o2);
-//			WriteAsOperand(os1, LocA.Ptr, true, F.getParent());
-//			WriteAsOperand(os2, LocB.Ptr, true, F.getParent());
-//		}
-    	errs() << "LocA:" << LocA.Ptr->getName() << "\n";
-    	errs() << "LocB:" << LocB.Ptr->getName() << "\n";
-    	return AliasAnalysis::NoAlias;
+		{
+			raw_string_ostream os1(o1), os2(o2);
+			WriteAsOperand(os1, LocA.Ptr, true, FuncPoint->getParent());
+			WriteAsOperand(os2, LocB.Ptr, true, FuncPoint->getParent());
+		}
+    	errs() << "LocA:" << o1 << "\n";
+    	errs() << "LocB:" << o2 << "\n";
+    	if(myShapiro->Alias(o1, o2) == 0)
+    		return AliasAnalysis::NoAlias;
+    	else
+    		AliasAnalysis::alias(LocA, LocB);
     	//return myShapiro->Alias(o1, o2);
     }
 
     //virtual ModRefResult getModRefInfo(ImmutableCallSite CS, const Location &Loc);
 
-    virtual ModRefResult getModRefInfo(ImmutableCallSite CS1,
-                                       ImmutableCallSite CS2) {
-      // The AliasAnalysis base class has some smarts, lets use them.
-      return AliasAnalysis::getModRefInfo(CS1, CS2);
-    }
+//    virtual ModRefResult getModRefInfo(ImmutableCallSite CS1,
+//                                       ImmutableCallSite CS2) {
+//      // The AliasAnalysis base class has some smarts, lets use them.
+//      return AliasAnalysis::getModRefInfo(CS1, CS2);
+//    }
 
     /// pointsToConstantMemory - Chase pointers until we find a (constant
     /// global) or not.
@@ -272,7 +276,8 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 
 	virtual bool runOnFunction(Function &F)
 	{
-		//InitializeAliasAnalysis(this);
+		FuncPoint = &F;
+		InitializeAliasAnalysis(this);
 		++ShapiroHorwitzCounter;
 		errs() << "Function Name:" << F.getName() << "\n";
 //		std::vector<ReturnInst*> Returns;

@@ -311,7 +311,7 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 			}
 			else if(PHINode *AI = dyn_cast<PHINode>(I))
 			{
-				//errs() << "\nPhi Node:" << *AI;
+				errs() << "\nPhi Node:" << *AI;
 				if(Type *firstOperandType = dyn_cast<PointerType>(AI->getType()))
 				{
 					if(firstOperandType != NULL) //avoiding warning
@@ -323,13 +323,13 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 							  if(AI->getNumOperands() > 1)
 								  WriteAsOperand(os3, AI->getOperand(1), true, F.getParent());
 						}
-//						errs() << "\n1:" << o2 << "\t2:" << o3;
-//						errs() << "\n";
+						errs() << "\n1:" << o2 << "\t2:" << o3;
+						errs() << "\n";
 						if(AI->getNumOperands() > 1)
 							pointsToGraph->phiConnect(o1, o2, o3);
 					}
 				}
-				//errs() << "\n";
+				errs() << "\n";
 			}
 		}
 	}
