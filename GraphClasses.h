@@ -75,6 +75,10 @@ public:
 	// Called to process "phi" calls in LLVM
 	void phiConnect(std::string newLabel, std::string a, std::string b);
 
+	// given the label for a new variable, this method creates a new vertex with an edge
+	// to all other vertices. This is called for non-malloc functions (very conservative)
+	void functionConnect(std::string newLabel);
+
 	// creates a dot file of the graph for visual inspection
 	void createDotFile(std::string fileName);
 
