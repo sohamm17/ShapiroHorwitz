@@ -52,8 +52,9 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 
 	virtual void getAnalysisUsage(AnalysisUsage &AU) const
 	{
-		AU.addRequired<AliasAnalysis>();
-		//AU.setPreservesAll();
+		AliasAnalysis::getAnalysisUsage(AU);
+		//AU.addRequired<AliasAnalysis>();
+		AU.setPreservesAll();
 	}
 
 	static inline bool isInterestingPointer(Value *V) {
@@ -75,7 +76,7 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 //      //AU.addRequired<TargetLibraryInfo>();
 //    }
 
-    virtual AliasResult alias(const Location &LocA,
+    virtual ShapiroHorwitzAliasAnalysis::AliasResult alias(const Location &LocA,
                               const Location &LocB) {
      /* assert(AliasCache.empty() && "AliasCache must be cleared after use!");
       assert(notDifferentParent(LocA.Ptr, LocB.Ptr) &&
@@ -92,6 +93,7 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 
     	// ----------- Soham - Analysis
 
+    	errs() << "Starting alias query\n" ;
     	std::string o1, o2;
 		{
 			raw_string_ostream os1(o1), os2(o2);
@@ -100,10 +102,14 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 		}
     	errs() << "LocA:" << o1 << "\n";
     	errs() << "LocB:" << o2 << "\n";
-    	if(myShapiro->Alias(o1, o2) == 0)
+    	//errs() << "MyShapiro:" << myShapiro << "\n";
+    	int result = myShapiro->Alias(o1, o2);
+    	errs() << "Result:" << result << "\n";
+    	errs() << "AliasFinished\n";
+    	if(result == 0)
     		return AliasAnalysis::NoAlias;
     	else
-    		AliasAnalysis::alias(LocA, LocB);
+    		return AliasAnalysis::alias(LocA, LocB);
     	//return myShapiro->Alias(o1, o2);
     }
 
@@ -291,8 +297,8 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 
 	virtual bool runOnFunction(Function &F)
 	{
-		FuncPoint = &F;
 		InitializeAliasAnalysis(this);
+		FuncPoint = &F;
 		++ShapiroHorwitzCounter;
 		errs() << "Function Name:" << F.getName() << "\n";
 //		std::vector<ReturnInst*> Returns;
