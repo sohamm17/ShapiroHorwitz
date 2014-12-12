@@ -308,6 +308,7 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 					sprintf(heapLoc, "Malloc%d", HeapCounter++);
 					pointsToGraph->createVertices(o1, heapLoc);
 				}
+
 			}
 			else if(PHINode *AI = dyn_cast<PHINode>(I))
 			{
@@ -323,6 +324,15 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 							  if(AI->getNumOperands() > 1)
 								  WriteAsOperand(os3, AI->getOperand(1), true, F.getParent());
 						}
+						char* stackLoc = new char[50];
+						sprintf(stackLoc, "Stack%d", StackCounter++);
+						if(pointsToGraph->getVertexAtLabel(o2) == NULL)
+							pointsToGraph->createVertices(o2, stackLoc);
+
+						sprintf(stackLoc, "Stack%d", StackCounter++);
+						if(pointsToGraph->getVertexAtLabel(o3) == NULL)
+							pointsToGraph->createVertices(o3, stackLoc);
+
 						errs() << "\n1:" << o2 << "\t2:" << o3;
 						errs() << "\n";
 						if(AI->getNumOperands() > 1)

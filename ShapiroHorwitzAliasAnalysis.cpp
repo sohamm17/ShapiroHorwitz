@@ -22,6 +22,7 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/IR/Instructions.h"
+#include "llvm/IR/Module.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Assembly/Writer.h"
 #include "llvm/ADT/SetVector.h"
@@ -155,6 +156,20 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 		  int StackCounter = 1, HeapCounter = 1;
 		  //SetVector<Value *> Loads;
 		  //SetVector<Value *> Stores;
+
+		  //Module::GlobalListType globalList = F.getParent()->getGlobalList();
+		  for(Module::global_iterator I = F.getParent()->getGlobalList().begin(),
+				  E = F.getParent()->getGlobalList().end(); I != E; ++I)
+		  {
+			  if (I->getType()->isPointerTy())
+			  {
+					Pointers.insert(I);
+					char* stackLoc = new char[50];
+					sprintf(stackLoc, "Stack%d", StackCounter++);
+					PointerString.insert(stackLoc);
+				  //errs() << "Getting Global" << "\n";
+			  }
+		  }
 
 		  for (Function::arg_iterator I = F.arg_begin(), E = F.arg_end(); I != E; ++I)
 		    if (I->getType()->isPointerTy())    // Add all pointer arguments.

@@ -182,16 +182,21 @@ void Graph::storeConnect(std::string a, std::string b){
 void Graph::addTargetsOfOther(Vertex * thisVertex, Vertex * otherVertex)
 {
 	std::vector<Edge*>  copyEdges = *(otherVertex->getOutEdges());
+	llvm::errs() << "1.In AddTargetsOfOther:" << this->vertices->size() << "\n";
 	for (int i = 0; i < copyEdges.size(); i++)
 	{
 		Edge* edgeToCopy = copyEdges[i];
 		Vertex * targetVertex = edgeToCopy->getTarget();
+		llvm::errs() << "1.5. In For Loop AddTargetsOfOther:" << targetVertex->getFirstLabel() << "\n";
 
 		if (!thisVertex->alreadyHasEdge(targetVertex))
 		{
+			llvm::errs() << "1.6. In If Cond AddTargetsOfOther:" << targetVertex->getFirstLabel() << "\n";
 			createEdge(thisVertex, targetVertex);
+			llvm::errs() << "1.7. End If Cond AddTargetsOfOther:" << targetVertex->getFirstLabel() << "\n";
 		}
 	}
+	llvm::errs() << "2.End AddTargetsOfOther:" << this->vertices->size() << "\n";
 }
 
 // given another vertex, this method copies every edge incoming to the other vertex
@@ -233,12 +238,16 @@ void Graph::loadConnect(std::string a, std::string b)
 // Called to process "phi" calls in LLVM
 void Graph::phiConnect(std::string newLabel, std::string a, std::string b)
 {
+	llvm::errs() << "In Phi:" << this->vertices->size() << "\n";
 	Vertex * aVertex = createVertex(a);
+	llvm::errs() << "2.In Phi:" << this->vertices->size() << "\n";
 	Vertex * bVertex = createVertex(b);
+	llvm::errs() << "3.In Phi:" << this->vertices->size() << "\n";
 	Vertex * newVertex = createVertex(newLabel);
+	llvm::errs() << "4.In Phi:" << this->vertices->size() << "\n";
 	addTargetsOfOther(newVertex, aVertex);
 	addTargetsOfOther(newVertex, bVertex);
-
+	llvm::errs() << "5.In Phi:" << this->vertices->size() << "\n";
 }
 
 
