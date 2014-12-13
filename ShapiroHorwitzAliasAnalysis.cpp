@@ -93,21 +93,26 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 
     	// ----------- Soham - Analysis
 
-    	errs() << "Starting alias query\n" ;
+    	//errs() << "Starting alias query\n" ;
     	std::string o1, o2;
 		{
 			raw_string_ostream os1(o1), os2(o2);
 			WriteAsOperand(os1, LocA.Ptr, true, FuncPoint->getParent());
 			WriteAsOperand(os2, LocB.Ptr, true, FuncPoint->getParent());
 		}
-    	errs() << "LocA:" << o1 << "\n";
-    	errs() << "LocB:" << o2 << "\n";
+    	//errs() << "LocA:" << o1 << "\n";
+    	//errs() << "LocB:" << o2 << "\n";
     	//errs() << "MyShapiro:" << myShapiro << "\n";
     	int result = myShapiro->Alias(o1, o2);
-    	errs() << "Result:" << result << "\n";
-    	errs() << "AliasFinished\n";
+    	//errs() << "Result:" << result << "\n";
+    	//errs() << "AliasFinished\n";
     	if(result == 0)
+    	{
+//    		errs() << "No Alias\n";
+//    		errs() << "LocA:" << o1 << "\n";
+//    		errs() << "LocB:" << o2 << "\n";
     		return AliasAnalysis::NoAlias;
+    	}
     	else
     		return AliasAnalysis::alias(LocA, LocB);
     	//return myShapiro->Alias(o1, o2);
@@ -154,7 +159,7 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 
 
 
-	void getPointersCategorized(Function &F, int k)
+	void runAnalysis(Function &F, int k)
 	{
 		  SetVector<Value *> Pointers;
 		  SetVector<CallSite> CallSites;
@@ -260,7 +265,7 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 			  PointerString.insert(o1);
 		  }
 		  myShapiro = new ShapiroHorwitz::ShapiroHorwitz(PointerString, k, F, 2);
-		  myShapiro->printPointsToSet();
+		  //myShapiro->printPointsToSet();
 
 
 		  ///// ------- For printing the alias relations
@@ -300,11 +305,13 @@ struct ShapiroHorwitzAliasAnalysis : public FunctionPass, public AliasAnalysis{
 		InitializeAliasAnalysis(this);
 		FuncPoint = &F;
 		++ShapiroHorwitzCounter;
-		errs() << "Function Name:" << F.getName() << "\n";
+		//errs() << "Function Name:" << F.getName() << "\n";
 //		std::vector<ReturnInst*> Returns;
 //		std::vector<CallInst*> Frees;
 
-		getPointersCategorized(F, 2);
+		int i;
+		runAnalysis(F, 2);
+		myShapiro->printPointsToSetSize();
 		return false;
 	}
 };

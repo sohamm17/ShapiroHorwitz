@@ -76,6 +76,7 @@ public:
 	ShapiroHorwitz(llvm::SetVector<std::string> Pointers, int k, llvm::Function &F, int algo);
 	void printPointsToSet();
 	int Alias(const std::string V1, const std::string V2);
+	void printPointsToSetSize();
 };
 
 #endif /* LLVM_3_4_LIB_TRANSFORMS_FREEPLACEMENT_SHAPIROHORWITZ_H_ */

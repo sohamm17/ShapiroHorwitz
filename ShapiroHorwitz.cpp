@@ -154,7 +154,7 @@ std::vector<ShapiroHorwitz::tuple> *ShapiroHorwitz::getIntersection
 				{
 					isFound = false;
 					currentTuple.print();
-					errs() << " not found in " << i << "\n";
+					//errs() << " not found in " << i << "\n";
 					break;//we didn't find this tuple in one of the sets; so this cannot be in the intersection
 				}
 			}
@@ -206,6 +206,7 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 {
 	Graph * pointsToGraph = new Graph(&categoryValueMap[run]);
 
+	int dBug = 0;
 	int StackCounter = 1, HeapCounter = 1;
 
 	for(Module::global_iterator I = F.getParent()->getGlobalList().begin(),
@@ -225,6 +226,8 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 		}
 	}
 
+	int par = 1;
+	std::string firstParam;
 	for (Function::arg_iterator I = F.arg_begin(), E = F.arg_end(); I != E; ++I)
 	{
 		if (I->getType()->isPointerTy())
@@ -234,10 +237,20 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 				  raw_string_ostream os1(o1);
 				  WriteAsOperand(os1, I, true, F.getParent());
 			}
-			char* stackLoc = new char[50];
-			sprintf(stackLoc, "Stack%d", StackCounter++);
-			//errs() << "Function Argument: " << o1 << "\n";
-			pointsToGraph->createVertices(o1, stackLoc);
+
+			if(par == 1) // If first parameter then create a stack-location for that
+			{
+				char* stackLoc = new char[50];
+				sprintf(stackLoc, "Stack%d", StackCounter++);
+				//errs() << "Function Argument: " << o1 << "\n";
+				pointsToGraph->createVertices(o1, stackLoc);
+				firstParam = o1;
+				par = 2;
+			}
+			else //otherwise clone them as they may point to same thing
+			{
+				pointsToGraph->cloneVertex(o1, firstParam);
+			}
 		}
 	}
 
@@ -250,8 +263,8 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 			std::string o1, o2, o3;
 			if (LoadInst *AI = dyn_cast<LoadInst>(I))
 			{
-
-				//errs() << "Load: " << *I << "\n";
+				if(dBug)
+					errs() << "Load: " << *I << "\n";
 				{
 					  raw_string_ostream os1(o1), os2(o2);
 					  WriteAsOperand(os1, AI, true, F.getParent());
@@ -260,13 +273,13 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 				if(Type *firstOperandType = dyn_cast<PointerType>(AI->getType()))
 				{
 					pointsToGraph->loadConnect(o2, o1);
-					//errs() << o1 << "\t" << o2 << "\n";
+					if(dBug) errs() << o1 << "\t" << o2 << "\n";
 				}
-				//errs() << "\n\n";
+				if(dBug) errs() << "\n\n";
 			}
 			else if(StoreInst *AI = dyn_cast<StoreInst>(I))
 			{
-				//errs() << "Store: " << *I << "\n";
+				if(dBug) errs() << "Store: " << *I << "\n";
 				{
 					  raw_string_ostream os1(o1), os2(o2);
 					  WriteAsOperand(os1, AI->getOperand(0), true, F.getParent());
@@ -277,9 +290,12 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 				{
 					if(Type *firstOperandType = dyn_cast<PointerType>(AI->getType()))
 					{
-//						errs() << "Operand1:" << o1 << ":";
-//						errs() << "\tOperand2:" << o2 << ":";
-//						errs() << "\n\n";
+						if(dBug)
+						{
+							errs() << "Operand1:" << o1 << ":";
+							errs() << "\tOperand2:" << o2 << ":";
+							errs() << "\n\n";
+						}
 						pointsToGraph->storeConnect(o2, o1);
 					}
 				}
@@ -293,7 +309,7 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 
 				char* stackLoc = new char[50];
 				sprintf(stackLoc, "Stack%d", StackCounter++);
-				//errs() << "Alloca: " << o1 << "\n";
+				if(dBug) errs() << "Alloca: " << o1 << "\n";
 				pointsToGraph->createVertices(o1, stackLoc);
 			}
 			else if(BitCastInst *AI = dyn_cast<BitCastInst>(I))
@@ -306,12 +322,12 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 
 
 				if(!pointsToGraph->cloneVertex(o1, o2))
-					;//errs() << "BitCast: Clonning problem:\t" << o2 << "\t" << o1 << "\n";
+					if(dBug) errs() << "BitCast: Clonning problem:\t" << o2 << "\t" << o1 << "\n";
 				else
 				{
 					//errs() << "BitCast: Clonning happened:\t" << o2 << "\t" << o1 << "\n";
 				}
-				//errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
+				if(dBug) errs() << "BitCast: " << o1 << "\t" << o2 << "\n";
 			}
 			else if(CallInst *AI = dyn_cast<CallInst>(I))
 			{
@@ -321,30 +337,30 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 						raw_string_ostream os1(o1);
 						WriteAsOperand(os1, AI, true, F.getParent());
 					}
-					//errs() << "LHS: " << o1 << "\n";
+					if(dBug) errs() << "LHS: " << o1 << "\n";
 					char* heapLoc = new char[50];
 					sprintf(heapLoc, "Malloc%d", HeapCounter++);
 					pointsToGraph->createVertices(o1, heapLoc);
 				}
-				else
-				{
-					if(Type *firstOperandType = dyn_cast<PointerType>(AI->getType()))
-					{
-						if(firstOperandType != NULL)
-						{
-							{
-								raw_string_ostream os1(o1);
-								WriteAsOperand(os1, AI, true, F.getParent());
-							}
-							pointsToGraph->functionConnect(o1);
-						}
-					}
-				}
+//				else
+//				{
+//					if(Type *firstOperandType = dyn_cast<PointerType>(AI->getType()))
+//					{
+//						if(firstOperandType != NULL)
+//						{
+//							{
+//								raw_string_ostream os1(o1);
+//								WriteAsOperand(os1, AI, true, F.getParent());
+//							}
+//							pointsToGraph->functionConnect(o1);
+//						}
+//					}
+//				}
 
 			}
 			else if(PHINode *AI = dyn_cast<PHINode>(I))
 			{
-				//errs() << "\nPhi Node:" << *AI;
+				if(dBug) errs() << "\nPhi Node:" << *AI;
 				if(Type *firstOperandType = dyn_cast<PointerType>(AI->getType()))
 				{
 					if(firstOperandType != NULL) //avoiding warning
@@ -357,13 +373,13 @@ Graph * ShapiroHorwitz::runOnFunction(llvm::Function &F, int run)
 								  WriteAsOperand(os3, AI->getOperand(1), true, F.getParent());
 						}
 
-//						errs() << "\n1:" << o2 << "\t2:" << o3;
-//						errs() << "\n";
+						if(dBug) errs() << "\n1:" << o2 << "\t2:" << o3;
+						if(dBug) errs() << "\n";
 						if(AI->getNumOperands() > 1)
 							pointsToGraph->phiConnect(o1, o2, o3);
 					}
 				}
-				//errs() << "\n";
+				if(dBug) errs() << "\n";
 			}
 		}
 	}
@@ -383,6 +399,11 @@ void ShapiroHorwitz::printPointsToSet()
 	errs() << "\n";
 }
 
+void ShapiroHorwitz::printPointsToSetSize()
+{
+	errs() << "\nSize of PointsTo set:" << finalPointsToSet->size() << "\n";
+}
+
 // 0 - No Alias
 // 1 - May Alias
 int ShapiroHorwitz::Alias(const std::string V1, const std::string V2)
@@ -396,10 +417,11 @@ int ShapiroHorwitz::Alias(const std::string V1, const std::string V2)
 		if(curTuple.getSource().compare(V1) == 0)
 			V1PointsTo.push_back(curTuple.getTarget());
 	}
-	//errs() << "Finished finding this:" << V1PointsTo.size() << "\n" ;
+	//errs() << "Finished finding this:" << V1 << ":" << V1PointsTo.size() << "\n" ;
 	if(V1PointsTo.size() == 0)
-		return 1; //V1 points to nothing so we can't definitely say anything
+		return 1; //V1 points to nothing so we can't definitely say anything - return may-alias
 	finalPointsToSetIteraor = finalPointsToSet->begin();
+	int foundV2 = 0;
 	for(; finalPointsToSetIteraor != finalPointsToSet->end(); finalPointsToSetIteraor++)
 	{
 		tuple curTuple = (*finalPointsToSetIteraor);
@@ -407,6 +429,7 @@ int ShapiroHorwitz::Alias(const std::string V1, const std::string V2)
 		//errs() << "\n";
 		if(curTuple.getSource().compare(V2) == 0)
 		{
+			foundV2 = 1;
 			if(std::find(V1PointsTo.begin(), V1PointsTo.end(), curTuple.getTarget()) != V1PointsTo.end())
 			{
 				//errs() << "Found May Alias" << "\n";
@@ -414,5 +437,7 @@ int ShapiroHorwitz::Alias(const std::string V1, const std::string V2)
 			}
 		}
 	}
+	if(foundV2 == 0)
+		return 1;//we haven't found the vertices so return may-alias because we don't have information
 	return 0;
 }

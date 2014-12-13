@@ -238,7 +238,7 @@ void Graph::loadConnect(std::string a, std::string b)
 // Called to process "phi" calls in LLVM
 void Graph::phiConnect(std::string newLabel, std::string a, std::string b)
 {
-	//llvm::errs() << "In Phi:" << this->vertices->size() << "\n";
+	//llvm::errs() << "1.In Phi:" << this->vertices->size() << "\n";
 	Vertex * aVertex = createVertex(a);
 	//llvm::errs() << "2.In Phi:" << this->vertices->size() << "\n";
 	Vertex * bVertex = createVertex(b);
